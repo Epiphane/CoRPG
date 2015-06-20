@@ -4,6 +4,13 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+extern "C" {
+# include "lua.h"
+# include "lauxlib.h"
+# include "lualib.h"
+}
+#include "LuaBridge/Source/LuaBridge/LuaBridge.h"
+
 #include "main.h"
 #include "gameinfo.h"
 #include "game.h"
@@ -15,17 +22,17 @@ Game *currentGame;
 
 void createNewGame(std::string game);
 
-void playGame(std::string name) {
+void playGame(std::string name) {	
 	currentGame = new Game(name);
 	currentGame->load();
 	currentGame->play();
 }
 
 void Game::load() {
-	printBox(18, 4);
-	print(-1, "Loading...");
+	ScrBox loading(18, 5);
+	loading.printlnleft("Loading...");
 	refreshScreen();
-	print(0, "Loaded!   ");
+	loading.printlnleft("Loaded!");
 
 	// Read game file
 	fstream game_file(filename.c_str(), iostream::in);
@@ -38,18 +45,21 @@ void Game::load() {
 	stringstream file_stream;
 	read_file(game_file, file_stream);
 
+	file_stream >> region;
+
 	player.load(file_stream);
 	boss.load(file_stream);
 	refreshScreen();
 }
 
 void Game::save() {
-	printBox(18, 4);
-	print(-1, "Saving...");
+	ScrBox saving(18, 5);
+	saving.printlnleft("Saving...");
 	refreshScreen();
-	print(0, "Saved!   ");
+	saving.printlnleft("Saved!");
 
 	stringstream file;
+	file << region << endl;
 	player.save(file);
 	boss.save(file);
 	
@@ -64,8 +74,20 @@ void Game::save() {
 	refreshScreen();
 }
 
+void lua_clear() {
+
+}
+
+void lua_print(const char *format, ...) {
+
+}
+
 void Game::play() {
-	player.infoPage("Player information");
+	lua_State* L = luaL_newstate();
+	luaL_dofile(L, (region + ".lua").c_str());
+	luaL_openlibs(L);
+	lua_pcall(L, 0, 0, 0);
+//	luabridge::LuaRef s = getGlobal(L, "welcome");
 }
 
 void Game::new_game() {
@@ -77,37 +99,47 @@ void Game::new_game() {
 		return;
 	}
 
+	region = "tavern";
 	player.health = 100;
 
 	clearScreen();
-	printBox(60, 20);
 
-	int row = -8;
-	print(row, "       Enter world name:                        ");
-	boss.name = input(row++, 2);
-	row++;
+	ScrBox options(60, 20);
 
-	print(row, "      Enter player name:                        ");
-	player.name = input(row++, 2);
-	row++;
+	options.println();
 
-	print(row, "Enter player hair color:                        ");
-	print(row + 1, "Suggested: lavender                           ");
-	player.setProperty("hair", input(row++, 2));
-	row += 2;
+	options.print("      Enter world name: ");
+	boss.name = options.input();
+	options.println();
+	
+	options.print("      Enter world name: ");
+	boss.name = options.input();
+	options.println();
 
-	print(row, "  Enter first boss name:                        ");
-	boss.name = input(row++, 2);
-	row++;
+	options.print("     Enter player name: ");
+	player.name = options.input();
+	options.println();
+
+	options.println();
+	options.print("  Suggested: lavender");
+	options.println(); options.moveCursor(0, -2);
+	options.print("Enter player hair color: ");
+	player.setProperty("hair", options.input());
+	options.println();
+	
+	options.print("  Enter first boss name: "); 
+	boss.name = options.input();
 
 	int suggestedHP = 100;
-	print(row, "Enter first boss health:                        ");
-	print(row + 1, "Suggested: %d                               ", suggestedHP);
-	boss.health = atoi(input(row++, 2).c_str());
-	row += 2;
+	options.println();
+	options.print("  Suggested: %d", suggestedHP);
+	options.println(); options.moveCursor(0, -2);
+	options.print("Enter first boss health: ");
+	boss.health = atoi(options.input().c_str());
+	options.println();
 
-	print(row, "Press Enter to continue...");
-	input(row, 13, ALLOW_EMPTY);
+	options.printlncenter("Press Enter to continue...");
+	options.input(ALLOW_EMPTY);
 
 	save();
 }

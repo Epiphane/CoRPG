@@ -74,25 +74,26 @@ void GameObject::setProperty(std::string prop, std::string val) {
 void GameObject::infoPage(string title) {
 	clearScreen();
 
-	printBox(30, 11 + properties.size());
-	int row = -properties.size() / 2 - 3;
+	ScrBox page(30, 11 + properties.size());
 
-	print(row, title.c_str());
-	row += 2;
+	page.printlncenter(title.c_str());
+	page.println();
+	page.println();
 
-	print(row++, "Name: %s", name.c_str());
-	print(row++, "Health: %d", health);
+	page.printlncenter("Name: %s", name.c_str());
+	page.printlncenter("Health: %d", health);
 
 	unordered_map<string, string>::iterator it = properties.begin();
 	while (it != properties.end()) {
-		print(row++, "%s: %s", it->first.c_str(), it->second.c_str());
+		page.printlncenter("%s: %s", it->first.c_str(), it->second.c_str());
 		it ++;
 	}
 
-	row += 2;
-	print(row, "(enter)");
+	page.println();
+	page.println();
+	page.printlncenter("(enter)");
 
 	refreshScreen();
 
-	input(row, 4, ALLOW_EMPTY);
+	page.input(ALLOW_EMPTY);
 }

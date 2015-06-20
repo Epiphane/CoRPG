@@ -13,6 +13,9 @@ std::string gameSelectScreen();
 int rows, cols;
 WINDOW *scr;
 
+int getRows() { return rows; }
+int getCols() { return cols; }
+
 int main(int argc, char *argv[]) {
 	scr = initscr();								/* Start curses mode 		  */
 	noecho();
@@ -47,97 +50,56 @@ beginGame:
 void clearScreen() { clear(); }
 void refreshScreen() { refresh(); }
 
-void print(int row, const char *format, ...) {
-	char buffer[256];
-	memset(buffer, 0, sizeof(buffer));
-
-	va_list  argptr;
-	va_start(argptr, format);
-	vsprintf(buffer, format, argptr);
-	va_end(argptr);
-
-	int col = (cols - strlen(buffer)) / 2;	
-	row = rows / 2+ row;
-	mvprintw(row, col, buffer);
-}
-
-void printBox(int width, int height) {
-	int row = -height / 2 - 1;
-
-	char *row_text = new char[width + 1];
-
-	memset(row_text, '-', width);
-	row_text[0] = '/';
-	row_text[width - 1] = '\\';
-	row_text[width] = 0;
-	print(row++, row_text);
-
-	memset(row_text, ' ', width);
-	row_text[0] = row_text[width - 1] = '|';
-	while(row < height / 2 + 1)
-		print(row++, row_text);
-	
-	memset(row_text, '-', width);
-	row_text[0] = '\\';
-	row_text[width - 1] = '/';
-	row_text[width] = 0;
-	print(row++, row_text);
-
-	delete row_text;
-}
-
 void splash() {
 	clearScreen();
 
-	printBox(48, 12);
-	int row = -3;
-	print(row++, "* WeeblyRPG *");
-	row++;
-	print(row++, "By Thomas Steinke");
-	row++;
-	print(row++, "(space) - Play");
-	print(row++, "(h) - Help    ");
-	print(row++, "(q) - Quit    ");
+	ScrBox splashBox(48, 12);
+	splashBox.printlncenter("* WeeblyRPG *");
+	splashBox.println();
+	splashBox.printlncenter("By Thomas Steinke");
+	splashBox.println();
+	splashBox.printlncenter("(space) - Play");
+	splashBox.printlncenter("(h)     - Help");
+	splashBox.printlncenter("(q)     - Quit");
 
-	refreshScreen();						/* Print it on to the real screen */
+	refreshScreen();
 }
 
 void helpScreen() {
 	clearScreen();
 
-	printBox(50, 20);
+	ScrBox helpBox(50, 20);
 
-	int row = -8;
-	print(row++, "WeeblyRPG is a text-based RPG where    ");
-	print(row++, "everyone plays the same character!     ");
-	row++;
-	print(row++, "Work together to strengthen the hero,  ");
-	print(row++, "and defeat the boss to add your name to");
-	print(row++, "the trophy room!                       ");
-	row++;
-	print(row++, "Be careful, though:                    ");
-	print(row++, "If someone beats the monster before    ");
-	print(row++, "you, they get the fame and you get     ");
-	print(row++, "...");
-	print(row++, "NOTHING!!");
-	row += 2;
-	print(row++, "(space) - Go back");
-	print(row++, "(q) - Quit       ");
+	helpBox.printlnleft("WeeblyRPG is a text-based RPG where");
+	helpBox.printlnleft("everyone plays the same character!");
+	helpBox.println();
+	helpBox.printlnleft("Work together to strengthen the hero,");
+	helpBox.printlnleft("and defeat the boss to add your name");
+	helpBox.printlnleft("to the trophy room!");
+	helpBox.println();
+	helpBox.printlnleft("Be careful, though:");
+	helpBox.printlnleft("If someone beats the monster before");
+	helpBox.printlnleft("you, they get the fame and you get");
+	helpBox.printlnleft("...");
+	helpBox.printlnleft("NOTHING!!");
+	helpBox.println();
+	helpBox.printlnleft("(space) - Go back");
+	helpBox.printlnleft("(q) - Quit       ");
 
-	refreshScreen();						/* Print it on to the real screen */
+	refreshScreen();
 }
 
 std::string gameSelectScreen() {
 	clearScreen();
 
-	printBox(50, 11);
-	print(-4, "* Enter Game Name *");
-	print(-3, "Press (enter) to start");
-	print(-2, "Leave blank for default Weebly game");
-	int input_col = -18;
+	ScrBox gameSelectBox(50, 11);
+
+	gameSelectBox.printlncenter("* Enter Game Name *");
+	gameSelectBox.printlncenter("Press (enter) to start");
+	gameSelectBox.printlncenter("Leave blank for default Weebly game");
 
 	refreshScreen();
-	return input(0, input_col, ALLOW_EMPTY);
+	return gameSelectBox.input(ALLOW_EMPTY);
 }
 
 std::string input(int cursor_row, int cursor_col, int flags) {

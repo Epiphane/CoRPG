@@ -12,6 +12,7 @@ private:
 	GameObject boss;
 
 	std::string filename;
+	std::string region;
 
 	void new_game();
 
