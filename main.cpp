@@ -97,6 +97,8 @@ std::string gameSelectScreen() {
 	gameSelectBox.printlncenter("* Enter Game Name *");
 	gameSelectBox.printlncenter("Press (enter) to start");
 	gameSelectBox.printlncenter("Leave blank for default Weebly game");
+	gameSelectBox.println();
+	gameSelectBox.moveCursor(3, 0);
 
 	refreshScreen();
 	return gameSelectBox.input(ALLOW_EMPTY);

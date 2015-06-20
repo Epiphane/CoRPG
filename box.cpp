@@ -41,6 +41,15 @@ ScrBox::ScrBox(int w, int h, Point c) {
 void ScrBox::println() {
 	cursor.x = top_left.x + PADDING_X;
 	cursor.y ++;
+
+	move(cursor.y, cursor.x);
+}
+
+void ScrBox::moveCursor(int dx, int dy) {
+	cursor.y += dy;
+	cursor.x += dx;
+
+	move(cursor.y, cursor.x);
 }
 
 void ScrBox::println(Align alignment, const char *format, va_list args) {
@@ -80,3 +89,5 @@ std::string _input(int y, int x, int f) { return input(y, x, f); }
 std::string ScrBox::input(int flags) {
 	return _input(cursor.y, cursor.x, flags);
 }
+
+char ScrBox::getchar() { return getch(); }

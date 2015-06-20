@@ -4,14 +4,8 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-extern "C" {
-# include "lua.h"
-# include "lauxlib.h"
-# include "lualib.h"
-}
-#include "LuaBridge/Source/LuaBridge/LuaBridge.h"
-
 #include "main.h"
+#include "lua_shell.h"
 #include "gameinfo.h"
 #include "game.h"
 
@@ -19,6 +13,7 @@ using namespace std;
 
 /* Game info */
 Game *currentGame;
+Game *getCurrentGame() { return currentGame; }
 
 void createNewGame(std::string game);
 
@@ -74,20 +69,27 @@ void Game::save() {
 	refreshScreen();
 }
 
-void lua_clear() {
-
-}
-
-void lua_print(const char *format, ...) {
-
-}
-
 void Game::play() {
-	lua_State* L = luaL_newstate();
-	luaL_dofile(L, (region + ".lua").c_str());
-	luaL_openlibs(L);
-	lua_pcall(L, 0, 0, 0);
-//	luabridge::LuaRef s = getGlobal(L, "welcome");
+	run_script(region + ".lua");
+}
+
+bool Game::pause() {
+	ScrBox pauseScreen(30, 20);
+
+	pauseScreen.printlncenter("Paused");
+	pauseScreen.println();
+
+	pauseScreen.printlnleft("[1] - Continue");
+	pauseScreen.printlnleft("[2] - Save and quit");
+
+	char ch;
+	do { ch = pauseScreen.getchar(); pauseScreen.print(&ch); } while (ch != '1' && ch != '2');
+
+	if (ch == '1') return true;
+	else {
+		save();
+		return false;
+	}
 }
 
 void Game::new_game() {

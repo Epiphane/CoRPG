@@ -18,7 +18,7 @@ private:
 public:
 	ScrBox(int width, int height, Point center = CENTER);
 	
-	void moveCursor(int dx, int dy) { cursor.x += dx; cursor.y += dy; }
+	void moveCursor(int dx, int dy);
 	void println(Align align, const char *format, va_list args);
 	void print(Align align, const char *format, va_list args);
 
@@ -29,6 +29,7 @@ public:
 	void printlnright(const char *format, ...);
 
 	std::string input(int flags = 0);
+	char getchar();
 };
 
 #endif

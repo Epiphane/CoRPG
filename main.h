@@ -1,3 +1,6 @@
+#ifndef MAIN
+#define MAIN
+
 #include <string>
 #include "box.h"
 
@@ -11,3 +14,5 @@ int getCols();
 #define NONE 0
 #define ALLOW_EMPTY 1
 std::string input(int cursor_row, int cursor_col, int flags = NONE);
+
+#endif

@@ -19,11 +19,15 @@ private:
 public:
 	Game(std::string name) : filename(std::string(GAME_FILE) + "_" + name) {};
 
+	virtual void setRegion(std::string _r) { region = _r; }
+
 	virtual void load();
 	virtual void save();
+	virtual bool pause();
 	virtual void play();
 };
 
 void playGame(std::string game);
+Game *getCurrentGame();
 
 #endif

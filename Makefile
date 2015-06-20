@@ -2,7 +2,7 @@ CPP=g++
 CFLAGS=
 CPPFLAGS=
 
-OBJFILES=main.o game.o player.o gameinfo.o box.o
+OBJFILES=main.o game.o player.o gameinfo.o box.o lua_shell.o
 
 all: weeblyfun
 	
