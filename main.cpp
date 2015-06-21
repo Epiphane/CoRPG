@@ -26,7 +26,7 @@ beginGame:
 	char choice;
 	do {
 		choice = getch();
-	} while (choice != ' ' && choice != 'h' && choice != 'q');
+	} while (choice != ' ' && choice != 'h' && choice != 'q' && choice != 27);
 
 	if (choice == ' ') {
 		std::string game = gameSelectScreen();

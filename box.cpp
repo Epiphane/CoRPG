@@ -87,7 +87,7 @@ void ScrBox::printlnright(const char *format, ...) { PRINT(Right, println); }
 std::string _input(int y, int x, int f) { return input(y, x, f); }
 
 std::string ScrBox::input(int flags) {
-	return _input(cursor.y, cursor.x, flags);
+	return _input(cursor.y - getRows() / 2, cursor.x - getCols() / 2, flags);
 }
 
 char ScrBox::getchar() { return getch(); }

@@ -41,7 +41,6 @@ void GameObject::load(stringstream &input) {
 	string line;
 	input >> line;
 	while (line != ";" && !input.eof()) {
-		cout << line << endl;
 		string val;
 		getline(input, val);
 

@@ -8,9 +8,6 @@
 
 using namespace std;
 
-void L_clear()   { clear();   }
-void L_refresh() { refresh(); }
-
 ScrBox *L_window = NULL;
 
 void L_openWindow(int w, int h, int cx, int cy) {
@@ -57,8 +54,6 @@ void run_script(string filename) {
 	luaL_openlibs(L);
 	
 	Namespace global = getGlobalNamespace(L);
-	global.addFunction("clear", L_clear);
-	global.addFunction("refresh", L_refresh);
 	global.addFunction("window", L_openWindow);
 	global.addFunction("print", L_print);
 	global.addFunction("println", L_println);
@@ -66,24 +61,52 @@ void run_script(string filename) {
 	global.addFunction("input", L_input);
 	global.addFunction("move", L_setState);
 	
-	if (!luaL_loadfile(L, filename.c_str())) {
-		lua_pcall(L, 0, 0, 0);
+	int err = luaL_loadfile(L, filename.c_str());
+	if (err == 0) {
+		try {
+			lua_pcall(L, 0, 0, 0);
 
-		LuaRef render = getGlobal(L, "render");
-		LuaRef update = getGlobal(L, "update");
+			LuaRef render = getGlobal(L, "render");
+			LuaRef update = getGlobal(L, "update");
 
-		LuaRef s = getGlobal(L, "testString");
+			LuaRef s = getGlobal(L, "testString");
 
-		while (!stateChanged && !update.isNil()) {
-			if (!render.isNil())
-				render();
-			
-			char ch = getch();
-			if (ch != 27) // Escape
-				update(ch);
-			else 
-				if (!getCurrentGame()->pause()) // 0 means stop level
-					break;
+			while (!stateChanged && !update.isNil()) {
+				clear();
+				if (!render.isNil())
+					render();
+				refresh();
+				
+				char ch = getch();
+				if (ch != 27) { // Escape
+					update(ch);
+				}
+				else 
+					if (!getCurrentGame()->pause()) // 0 means stop level
+						break;
+			}
 		}
+		catch (LuaException e) {
+			int len = strlen(e.what());
+			if (len < 31) len = 32;
+
+			ScrBox error(len + 4, 7);
+			error.printlncenter("Error", filename.c_str()); 
+			error.printlncenter("%s", e.what());
+			error.println();
+			error.printlncenter("Press any button to continue...");
+
+			refresh();
+
+			getch();
+		}
+	}
+	else {
+		ScrBox error(40, 5);
+		error.printlncenter("Error loading %s: %d", filename.c_str(), err);
+
+		refresh();
+
+		getch();
 	}
 }

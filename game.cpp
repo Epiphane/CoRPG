@@ -70,7 +70,7 @@ void Game::save() {
 }
 
 void Game::play() {
-	run_script(region + ".lua");
+	run_script("world/" + region + ".lua");
 }
 
 bool Game::pause() {
@@ -83,7 +83,7 @@ bool Game::pause() {
 	pauseScreen.printlnleft("[2] - Save and quit");
 
 	char ch;
-	do { ch = pauseScreen.getchar(); pauseScreen.print(&ch); } while (ch != '1' && ch != '2');
+	do { ch = pauseScreen.getchar(); } while (ch != '1' && ch != '2');
 
 	if (ch == '1') return true;
 	else {
@@ -113,9 +113,6 @@ void Game::new_game() {
 	options.print("      Enter world name: ");
 	boss.name = options.input();
 	options.println();
-	
-	options.print("      Enter world name: ");
-	boss.name = options.input();
 	options.println();
 
 	options.print("     Enter player name: ");
@@ -128,9 +125,12 @@ void Game::new_game() {
 	options.print("Enter player hair color: ");
 	player.setProperty("hair", options.input());
 	options.println();
+	options.println();
+	options.println();
 	
 	options.print("  Enter first boss name: "); 
 	boss.name = options.input();
+	options.println();
 
 	int suggestedHP = 100;
 	options.println();
@@ -138,6 +138,9 @@ void Game::new_game() {
 	options.println(); options.moveCursor(0, -2);
 	options.print("Enter first boss health: ");
 	boss.health = atoi(options.input().c_str());
+	options.println();
+	options.println();
+	options.println();
 	options.println();
 
 	options.printlncenter("Press Enter to continue...");
