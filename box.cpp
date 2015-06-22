@@ -4,6 +4,8 @@
 #include "main.h"
 
 ScrBox::ScrBox(int w, int h, Point c) {
+	if (w == 0) return;
+
 	c.y += getRows() / 2;
 	c.x += getCols() / 2;
 

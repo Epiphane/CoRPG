@@ -70,7 +70,10 @@ void Game::save() {
 }
 
 void Game::play() {
-	run_script("world/" + region + ".lua");
+	while (!isComplete) {
+		Region current_region(region, this);
+		current_region.run();
+	}
 }
 
 bool Game::pause() {
@@ -88,6 +91,7 @@ bool Game::pause() {
 	if (ch == '1') return true;
 	else {
 		save();
+		isComplete = true;
 		return false;
 	}
 }

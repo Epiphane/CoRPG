@@ -1,4 +1,5 @@
 #include <string>
+#include <string.h>
 #include <iostream>
 #include <ncurses.h>
 #include <sstream>
@@ -8,105 +9,206 @@
 
 using namespace std;
 
-ScrBox *L_window = NULL;
-
-void L_openWindow(int w, int h, int cx, int cy) {
-	if (L_window != NULL)
-		delete L_window;
-
-	Point center = { cx, cy };
-	L_window = new ScrBox(w, h, center);
+ScrBox Lua_window(0, 0, CENTER);
+int Lua_openWindow(lua_State *L) {
+	int x = lua_tonumber(L, 1);
+	int y = lua_tonumber(L, 2);
+	int w = lua_tonumber(L, 3);
+	int h = lua_tonumber(L, 4);
+	
+	Point c = {w, h};
+	Lua_window = ScrBox(x, y, c);
+	return 0;
 }
 
-void L_print(const string message) {
-	stringstream input(message);
-	for (string line;; ) {
-		L_window->print(line.c_str());
-		
-		if (getline(input, line))
-			L_window->println();
-		else
-			break;
+int Lua_print(lua_State *L) {
+	const char *_message = lua_tostring(L, 1);
+	char message[256];
+	memcpy(message, _message, strlen(_message));
+
+	Lua_window.printlnleft(_message);
+
+	return 0;
+
+	char *token = strtok(message, "\n");
+	while (token) {
+		Lua_window.printlnleft(token);
+		token = strtok(NULL, "\n");
+	}
+	
+	return 0;
+}
+
+int Lua_println(lua_State *L) {
+	Lua_print(L);
+	Lua_window.println();
+	
+	return 0;
+}	
+
+LuaScript::LuaScript(const std::string& filename) {
+	L = luaL_newstate();
+	if (luaL_loadfile(L, filename.c_str())) {
+		L = NULL;
+		printError("Script not loaded: " + filename);
 	}
 }
-
-void L_println(const string message) {
-	L_print(message);
-	L_window->println();
+LuaScript::~LuaScript() {
+	if (L) lua_close(L);
 }
 
-char L_getch() { return getch(); }
-string L_input(int flags = 0) { return L_window->input(flags); }
-
-bool stateChanged;
-void L_setState(std::string state) {
-	getCurrentGame()->setRegion(state);
-
-	stateChanged = true;
-}
-
-using namespace luabridge;
-
-void run_script(string filename) {
-	stateChanged = false;
-
-	lua_State* L = luaL_newstate();
+#define DEF_FUN(name, fundef) lua_pushcfunction(L, fundef);\
+	lua_setglobal(L, name);
+void LuaScript::run() {
+	if (!L) {
+		printError("Script not loaded");
+		return;
+	}
+	
 	luaL_openlibs(L);
-	
-	Namespace global = getGlobalNamespace(L);
-	global.addFunction("window", L_openWindow);
-	global.addFunction("print", L_print);
-	global.addFunction("println", L_println);
-	global.addFunction("getch", L_println);
-	global.addFunction("input", L_input);
-	global.addFunction("move", L_setState);
-	
-	int err = luaL_loadfile(L, filename.c_str());
-	if (err == 0) {
-		try {
-			lua_pcall(L, 0, 0, 0);
+	DEF_FUN("window", Lua_openWindow);
+	DEF_FUN("print", Lua_print);
+	DEF_FUN("println", Lua_println);
+	/*DEF_FUN("getch", L_println);
+	DEF_FUN("input", L_input);*/
+	pre_run();
 
-			LuaRef render = getGlobal(L, "render");
-			LuaRef update = getGlobal(L, "update");
+	if(lua_pcall(L, 0, 0, 0)) {
+		L = NULL;
+		printError("Script execution failed: " + string(lua_tostring(L, 1)));
 
-			LuaRef s = getGlobal(L, "testString");
+		return;
+	}
 
-			while (!stateChanged && !update.isNil()) {
-				clear();
-				if (!render.isNil())
-					render();
-				refresh();
-				
-				char ch = getch();
-				if (ch != 27) { // Escape
-					update(ch);
-				}
-				else 
-					if (!getCurrentGame()->pause()) // 0 means stop level
-						break;
+	post_run();
+}
+
+// Region-specific stuff
+Region *running_region;
+int Lua_move(lua_State *L) {
+	running_region->move(string(lua_tostring(L, 1)));
+	return 0;
+}
+
+void Region::move(const string &next) {
+	game->setRegion(next);
+	isComplete = true;
+}
+
+void Region::pre_run() {
+	DEF_FUN("move", Lua_move);
+
+	running_region = this;
+}
+
+void Region::post_run() {
+	char ch = 0;
+	while (!isComplete) {
+		clear();
+		lua_getglobal(L, "render");
+		if (lua_isnil(L, -1)) {
+			printError("render() function is not defined");
+			return;
+		}
+		lua_pcall(L, 0, 0, 0);
+		refresh();			  
+
+		ch = getch();
+		if (ch == 27 && !game->pause())
+			isComplete = true;
+		else {
+			lua_getglobal(L, "update");
+			if (!lua_isnil(L, -1)) {
+				lua_pushlstring(L, &ch, 1);
+				lua_pcall(L, 1, 0, 0);
 			}
 		}
-		catch (LuaException e) {
-			int len = strlen(e.what());
-			if (len < 31) len = 32;
+	}
+}
 
-			ScrBox error(len + 4, 7);
-			error.printlncenter("Error", filename.c_str()); 
-			error.printlncenter("%s", e.what());
-			error.println();
-			error.printlncenter("Press any button to continue...");
+// Error reporting
+void LuaScript::printError(const string &message) {
+	ScrBox error(4 + message.size(), 7);
+	error.printlncenter("Error"); 
+	error.printlncenter(message.c_str());
+	error.println();
+	error.printlncenter("Press any button to continue...");
+	
+	refresh();
+	
+	getch();
+}
 
-			refresh();
+void LuaScript::printError(const string &variable, const string &reason) {
+	printError("Can't get [" + variable + "]: " + reason);
+}
 
-			getch();
+// Default values
+template<> inline bool LuaScript::lua_get(const std::string& variableName) {
+	return (bool)lua_toboolean(L, -1);
+}
+template<> inline float LuaScript::lua_get(const std::string& variableName) {
+	if(!lua_isnumber(L, -1)) {
+		printError(variableName, "Not a number");
+	}
+	return (float)lua_tonumber(L, -1);
+}
+template<> inline int LuaScript::lua_get(const std::string& variableName) {
+	if(!lua_isnumber(L, -1)) {
+		printError(variableName, "Not a number");
+	}
+	return (int)lua_tonumber(L, -1);
+}
+template<> inline std::string LuaScript::lua_get(const std::string& variableName) {
+	if(lua_isstring(L, -1))
+		return string(lua_tostring(L, -1));
+	else
+		return "null";
+}
+
+// Value retrieval
+bool LuaScript::push_var(const string &var) {
+	if (level == 0)
+		lua_getglobal(L, var.c_str());
+	else
+		lua_getfield(L, -1, var.c_str());
+	
+	return !lua_isnil(L, -1);
+}
+
+template<typename T>
+T LuaScript::get(const string& variable) {
+	if (!L) {
+		printError(variable, "Script not loaded");
+		return lua_getdefault<T>();
+	}
+
+	level = 0;
+	string var = "";
+	for (unsigned int i = 0; i < variable.size(); i ++) {
+		if (variable.at(i) == '.') {
+			if (!push_var(var)) {
+				printError(variable, var + " is not defined");
+				return lua_getdefault<T>();
+			}
+			else {
+				var = "";
+				level ++;
+			}
 		}
+		else var += variable.at(i);
 	}
-	else {
-		ScrBox error(40, 5);
-		error.printlncenter("Error loading %s: %d", filename.c_str(), err);
-
-		refresh();
-
-		getch();
+	if (!push_var(var)) {
+		printError(variable, var + " is not defined");
+		return lua_getdefault<T>();
 	}
+
+	T result = lua_get<T>(variable);
+	lua_pop(L, level + 1);
+	return result;
+}
+
+// Cleaning the Lua Stack
+void LuaScript::clean() {
+	lua_settop(L, 0);
 }
