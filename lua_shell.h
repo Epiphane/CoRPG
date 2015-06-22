@@ -5,11 +5,13 @@
 
 #include "main.h"
 
+#define LUAW_NO_EXTERN_C
 extern "C" {
 # include "lua.h"
 # include "lauxlib.h"
 # include "lualib.h"
-}
+};
+#include "luawrapper.hpp"
 
 /* Script class */ 
 class LuaScript {
@@ -18,6 +20,7 @@ public:
 	~LuaScript();
 
 	virtual void run();
+
 	void printError(const std::string& message);
 	void printError(const std::string& variableName, const std::string& reason);
  
@@ -54,6 +57,7 @@ public:
 	Region(std::string name, Game *g) : LuaScript("world/" + name + ".lua"), game(g), isComplete(false) {};
 
 	void move(const std::string &region);
+	bool error() { return L == NULL; }
 private:
 	Game *game;
 	bool isComplete;

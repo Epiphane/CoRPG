@@ -7,8 +7,6 @@ render = function()
 end
 
 update = function(input)
-	msg = input
-	println(input)
 	if (input == 't') then
 		move("town")
 	end

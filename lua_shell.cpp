@@ -59,6 +59,11 @@ LuaScript::~LuaScript() {
 
 #define DEF_FUN(name, fundef) lua_pushcfunction(L, fundef);\
 	lua_setglobal(L, name);
+#define SAFE_PCALL(call, methodName) if (call) {\
+	printError("Script execution failed [" + string(methodName) + "]: " + string(lua_tostring(L, -1)));\
+	L = NULL;\
+	return;\
+	}
 void LuaScript::run() {
 	if (!L) {
 		printError("Script not loaded");
@@ -73,12 +78,7 @@ void LuaScript::run() {
 	DEF_FUN("input", L_input);*/
 	pre_run();
 
-	if(lua_pcall(L, 0, 0, 0)) {
-		L = NULL;
-		printError("Script execution failed: " + string(lua_tostring(L, 1)));
-
-		return;
-	}
+	SAFE_PCALL(lua_pcall(L, 0, 0, 0), "main");
 
 	post_run();
 }
@@ -102,27 +102,30 @@ void Region::pre_run() {
 }
 
 void Region::post_run() {
-	char ch = 0;
-	while (!isComplete) {
-		clear();
-		lua_getglobal(L, "render");
-		if (lua_isnil(L, -1)) {
-			printError("render() function is not defined");
-			return;
-		}
-		lua_pcall(L, 0, 0, 0);
-		refresh();			  
-
-		ch = getch();
-		if (ch == 27 && !game->pause())
-			isComplete = true;
-		else {
-			lua_getglobal(L, "update");
-			if (!lua_isnil(L, -1)) {
-				lua_pushlstring(L, &ch, 1);
-				lua_pcall(L, 1, 0, 0);
+	try {
+		char ch = 0;
+		while (!isComplete) {
+			clear();
+			lua_getglobal(L, "render");
+			if (lua_isnil(L, -1)) {
+				printError("render() function is not defined");
+				return;
+			}
+			SAFE_PCALL(lua_pcall(L, 0, 0, 0), "render");
+			refresh();			  
+	
+			ch = getch();
+			if (ch == 27 && !game->pause())
+				isComplete = true;
+			else {
+				lua_getglobal(L, "update");
+				if (!lua_isnil(L, -1)) {
+					lua_pushlstring(L, &ch, 1);
+					SAFE_PCALL(lua_pcall(L, 1, 0, 0), "update");
+				}
 			}
 		}
+	} catch(exception e) {
 	}
 }
 
