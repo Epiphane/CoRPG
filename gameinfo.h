@@ -21,7 +21,7 @@ public:
 	std::string name;
 	int health, level;
 
-	GameObject() { properties.clear(); };
+	GameObject() : level(1) { properties.clear(); };
 
 	std::string getProperty(std::string prop);
 	void setProperty(std::string prop, std::string val);

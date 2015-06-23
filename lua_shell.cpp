@@ -22,20 +22,15 @@ int Lua_openWindow(lua_State *L) {
 }
 
 int Lua_print(lua_State *L) {
+	int n = lua_gettop(L);
+	if (n == 0) return 0;
+
 	const char *_message = lua_tostring(L, 1);
 	char message[256];
 	memcpy(message, _message, strlen(_message));
 
-	Lua_window.printlnleft(_message);
+	Lua_window.print(_message);
 
-	return 0;
-
-	char *token = strtok(message, "\n");
-	while (token) {
-		Lua_window.printlnleft(token);
-		token = strtok(NULL, "\n");
-	}
-	
 	return 0;
 }
 
@@ -90,31 +85,48 @@ void LuaScript::run() {
 }
 
 // GameObject functionality
+Region *running_region;
+int GO_create(lua_State *L) {
+	GameObject **box = (GameObject **)lua_newuserdata(L, sizeof(GameObject *));
+	luaL_setmetatable(L, "GameObject");
 
-int GO_create(lua_State *) {
+	*box = new GameObject();
+
 	return 1;
 }
 int GO_setProperty(lua_State *L) {
+	GameObject **box = (GameObject **)luaL_checkudata(L, 1, "GameObject");
+	string key = lua_tostring(L, 2);
+	string value = lua_tostring(L, 3);
+
+	(*box)->setProperty(key, value);
+
 	return 0;
 }
 int GO_getProperty(lua_State *L) {
-	lua_pushlstring(L, "something", 9);
+	GameObject **box = (GameObject **)luaL_checkudata(L, 1, "GameObject");
+	string key = lua_tostring(L, 2);
+
+	string prop = "";
+	if (key == "name")
+		prop = (*box)->name;
+	else if (key == "health")
+		prop = std::to_string((*box)->health);
+	else if (key == "level")
+		prop = std::to_string((*box)->level);
+	else
+		prop = (*box)->getProperty(key).c_str();
+		
+	lua_pushstring(L, prop.c_str());
 
 	return 1;
 }
 int GO_viewInfo(lua_State *L) {
+	GameObject **box = (GameObject **)luaL_checkudata(L, 1, "GameObject");
+	(*box)->infoPage((*box)->name);
+
 	return 0;
 }
-
-static const struct luaL_Reg gameobject_s[] = {
-	{NULL, NULL}
-};
-
-static const struct luaL_Reg gameobject_m[] = {
-	{"get", GO_getProperty},
-	{"set", GO_setProperty},
-	{NULL, NULL}
-};
 
 static const struct luaL_Reg Lua_gameobject_funcs[] = {
 	{"new", GO_create},
@@ -137,7 +149,6 @@ Region::Region(const std::string& name, Game *g) : LuaScript(""), game(g), isCom
 	lua_setglobal(L, "GameObject");
 }
 
-Region *running_region;
 int Lua_move(lua_State *L) {
 	running_region->move(string(lua_tostring(L, 1)));
 	return 0;

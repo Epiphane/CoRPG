@@ -58,8 +58,8 @@ public:
 	Region(const std::string& name, Game *g);
 	void move(const std::string &region);
 	bool error() { return L == NULL; }
-private:
 	Game *game;
+private:
 	bool isComplete;
 
 	void pre_run();

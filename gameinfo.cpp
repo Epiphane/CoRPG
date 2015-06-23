@@ -45,7 +45,7 @@ void GameObject::load(stringstream &input) {
 		string val;
 		getline(input, val);
 
-		properties[line] = val;
+		properties[line] = val.substr(1);
 
 		input >> line;
 	}
