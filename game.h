@@ -9,7 +9,7 @@
 
 class Game {
 private:
-	Player player;
+	GameObject player;
 	GameObject boss;
 	LuaScript *current_region;
 
@@ -22,6 +22,8 @@ private:
 
 public:
 	Game(std::string name) : filename(std::string(GAME_FILE) + "_" + name), isComplete(false) {};
+
+	GameObject *getPlayer() { return &player; }
 
 	virtual void setRegion(const std::string &_r) { region = _r; }
 

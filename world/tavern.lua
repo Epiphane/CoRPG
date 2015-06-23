@@ -1,7 +1,8 @@
 render = function()
 	window(40, 10, 0, 0);
 
-	println("Hello world!")
+	println("Hello, "..player.get("name").."!")
+
 	println("Press ESC to pause.")
 	println("Press t to go to town.")
 end

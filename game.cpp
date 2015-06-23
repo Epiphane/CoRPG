@@ -70,8 +70,10 @@ void Game::save() {
 }
 
 void Game::play() {
-	while (!isComplete) {
-		Region current_region(region, this);
+	string past_region = "";
+	while (!isComplete && past_region != region) {
+		past_region = region;
+		Region current_region = Region(region, this);
 		if (current_region.error()) break;
 		
 		current_region.run();

@@ -48,13 +48,20 @@ int Lua_println(lua_State *L) {
 
 LuaScript::LuaScript(const std::string& filename) {
 	L = luaL_newstate();
-	if (luaL_loadfile(L, filename.c_str())) {
-		L = NULL;
-		printError("Script not loaded: " + filename);
-	}
+	if (filename != "") // Must be initialized later!
+		init(filename);
 }
 LuaScript::~LuaScript() {
 	if (L) lua_close(L);
+}
+
+void LuaScript::init(const std::string& filename) {
+	if (luaL_loadfile(L, filename.c_str())) {
+		L = NULL;
+		printError("Script not loaded: " + filename);
+		return;
+	}
+	luaL_openlibs(L);
 }
 
 #define DEF_FUN(name, fundef) lua_pushcfunction(L, fundef);\
@@ -70,7 +77,6 @@ void LuaScript::run() {
 		return;
 	}
 	
-	luaL_openlibs(L);
 	DEF_FUN("window", Lua_openWindow);
 	DEF_FUN("print", Lua_print);
 	DEF_FUN("println", Lua_println);
@@ -83,7 +89,54 @@ void LuaScript::run() {
 	post_run();
 }
 
+// GameObject functionality
+
+int GO_create(lua_State *) {
+	return 1;
+}
+int GO_setProperty(lua_State *L) {
+	return 0;
+}
+int GO_getProperty(lua_State *L) {
+	lua_pushlstring(L, "something", 9);
+
+	return 1;
+}
+int GO_viewInfo(lua_State *L) {
+	return 0;
+}
+
+static const struct luaL_Reg gameobject_s[] = {
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg gameobject_m[] = {
+	{"get", GO_getProperty},
+	{"set", GO_setProperty},
+	{NULL, NULL}
+};
+
+static const struct luaL_Reg Lua_gameobject_funcs[] = {
+	{"new", GO_create},
+	{"get", GO_getProperty},
+	{"set", GO_setProperty},
+	{"info", GO_viewInfo},
+	{NULL, NULL}
+};
+
 // Region-specific stuff
+Region::Region(const std::string& name, Game *g) : LuaScript(""), game(g), isComplete(false) {
+	init("world/" + name + ".lua");
+
+	// Create GameObject metatable
+	luaL_newmetatable(L, "GameObject");
+	luaL_setfuncs(L, Lua_gameobject_funcs, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+
+	lua_setglobal(L, "GameObject");
+}
+
 Region *running_region;
 int Lua_move(lua_State *L) {
 	running_region->move(string(lua_tostring(L, 1)));
@@ -98,34 +151,44 @@ void Region::move(const string &next) {
 void Region::pre_run() {
 	DEF_FUN("move", Lua_move);
 
+	GameObject **obj = (GameObject **)lua_newuserdata(L, sizeof(GameObject *));
+	luaL_setmetatable(L, "GameObject");
+	*obj = game->getPlayer();
+
+	lua_setglobal(L, "player");
+
 	running_region = this;
 }
 
+#define GET_AND_CHECK(name) lua_getglobal(L, name);\
+	if (lua_isnil(L, -1)) {\
+		isComplete = true;\
+		printError(string(name) + " function is not defined");\
+		return;\
+	}
 void Region::post_run() {
-	try {
-		char ch = 0;
-		while (!isComplete) {
-			clear();
-			lua_getglobal(L, "render");
-			if (lua_isnil(L, -1)) {
-				printError("render() function is not defined");
-				return;
-			}
-			SAFE_PCALL(lua_pcall(L, 0, 0, 0), "render");
-			refresh();			  
-	
-			ch = getch();
-			if (ch == 27 && !game->pause())
-				isComplete = true;
-			else {
-				lua_getglobal(L, "update");
-				if (!lua_isnil(L, -1)) {
-					lua_pushlstring(L, &ch, 1);
-					SAFE_PCALL(lua_pcall(L, 1, 0, 0), "update");
-				}
-			}
+	// Get render and update functions
+	GET_AND_CHECK("render");
+	GET_AND_CHECK("update");
+
+	char ch = 0;
+	while (!isComplete) {
+		clear();
+		mvprintw(0, 0, ".-----------------------.");
+		mvprintw(1, 0, "| Press ESC to pause... |");
+		mvprintw(2, 0, "^-----------------------^");
+		lua_pushvalue(L, -2); // Queue up render()
+		SAFE_PCALL(lua_pcall(L, 0, 0, 0), "render");
+		refresh();			  
+
+		ch = getch();
+		if (ch == 27 && !game->pause())
+			isComplete = true;
+		else {
+			lua_pushvalue(L, -1); // Queue up update()
+			lua_pushlstring(L, &ch, 1);
+			SAFE_PCALL(lua_pcall(L, 1, 0, 0), "update");
 		}
-	} catch(exception e) {
 	}
 }
 

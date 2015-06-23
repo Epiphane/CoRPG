@@ -19,7 +19,7 @@ private:
 
 public:
 	std::string name;
-	int health;
+	int health, level;
 
 	GameObject() { properties.clear(); };
 
