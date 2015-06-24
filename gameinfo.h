@@ -21,7 +21,7 @@ private:
 
 public:
 	std::string name;
-	int health, level;
+	int health, maxhealth, level;
 
 	GameObject(std::string id) : id(id), level(1) { properties.clear(); };
 

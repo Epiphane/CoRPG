@@ -11,7 +11,6 @@ extern "C" {
 # include "lauxlib.h"
 # include "lualib.h"
 };
-#include "luawrapper.hpp"
 
 /* Script class */ 
 class LuaScript {

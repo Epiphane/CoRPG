@@ -37,6 +37,7 @@ void read_file(fstream &file, stringstream &output) {
 void GameObject::load(stringstream &input) {
 	input >> name;
 	input >> level;
+	input >> maxhealth;
 	input >> health;
 
 	string line;
@@ -52,7 +53,7 @@ void GameObject::load(stringstream &input) {
 }
 
 void GameObject::save(stringstream &output) {
-	output << name << "\n" << level << "\n" << health << "\n";
+	output << name << "\n" << level << "\n" << maxhealth << "\n" << health << "\n";
 
 	unordered_map<string, string>::iterator it = properties.begin();
 	while (it != properties.end()) {

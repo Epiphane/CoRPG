@@ -19,6 +19,7 @@ public:
 	ScrBox(int width, int height, Point center = CENTER);
 	
 	void moveCursor(int dx, int dy);
+	void setCursor(int rx, int ry);
 	void println(Align align, const char *format, va_list args);
 	void print(Align align, const char *format, va_list args);
 

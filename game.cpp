@@ -127,7 +127,7 @@ void Game::new_game() {
 	}
 
 	region = "tavern";
-	player.health = 100;
+	player.health = player.maxhealth = 100;
 
 	clearScreen();
 
@@ -165,7 +165,7 @@ void Game::new_game() {
 	options.print("  Suggested: %d", suggestedHP);
 	options.println(); options.moveCursor(0, -2);
 	options.print("Enter first boss health: ");
-	boss->health = atoi(options.input().c_str());
+	boss->maxhealth = boss->health = atoi(options.input().c_str());
 	options.println();
 	options.println();
 	options.println();

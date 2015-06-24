@@ -54,6 +54,20 @@ void ScrBox::moveCursor(int dx, int dy) {
 	move(cursor.y, cursor.x);
 }
 
+void ScrBox::setCursor(int rx, int ry) {
+	if (rx >= 0)
+		cursor.x = top_left.x + rx;
+	else
+		cursor.x = bottom_right.x + rx + 1;
+
+	if (ry >= 0)
+		cursor.y = top_left.y + ry;
+	else
+		cursor.y = bottom_right.y + ry + 1;
+
+	move(cursor.y, cursor.x);
+}
+
 void ScrBox::println(Align alignment, const char *format, va_list args) {
 	print(alignment, format, args);
 

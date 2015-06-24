@@ -41,6 +41,15 @@ int Lua_println(lua_State *L) {
 	return 0;
 }	
 
+int Lua_setcursor(lua_State *L) {
+	int rx = lua_tointeger(L, 1);
+	int ry = lua_tointeger(L, 2);
+
+	Lua_window.setCursor(rx, ry);
+
+	return 0;
+}
+
 LuaScript::LuaScript(const std::string& filename) {
 	L = luaL_newstate();
 	if (filename != "") // Must be initialized later!
@@ -75,6 +84,7 @@ void LuaScript::run() {
 	DEF_FUN("window", Lua_openWindow);
 	DEF_FUN("print", Lua_print);
 	DEF_FUN("println", Lua_println);
+	DEF_FUN("cursor", Lua_setcursor);
 	/*DEF_FUN("getch", L_println);
 	DEF_FUN("input", L_input);*/
 	pre_run();
@@ -123,6 +133,8 @@ int GO_getProperty(lua_State *L) {
 		prop = (*box)->name;
 	else if (key == "health")
 		prop = std::to_string((*box)->health);
+	else if (key == "maxhealth")
+		prop = std::to_string((*box)->maxhealth);
 	else if (key == "level")
 		prop = std::to_string((*box)->level);
 	else
