@@ -90,7 +90,18 @@ int GO_create(lua_State *L) {
 	GameObject **box = (GameObject **)lua_newuserdata(L, sizeof(GameObject *));
 	luaL_setmetatable(L, "GameObject");
 
-	*box = new GameObject();
+	string name = string(lua_tostring(L, -1));
+	*box = running_region->game->newObject(name);
+
+	return 1;
+}
+int GO_get(lua_State *L) {
+	string name = string(lua_tostring(L, -1));
+
+	GameObject **box = (GameObject **)lua_newuserdata(L, sizeof(GameObject *));
+	luaL_setmetatable(L, "GameObject");
+
+	*box = running_region->game->getObject(name);
 
 	return 1;
 }
@@ -136,6 +147,14 @@ static const struct luaL_Reg Lua_gameobject_funcs[] = {
 	{NULL, NULL}
 };
 
+int Region_depend(lua_State *L) {
+	string dependency = lua_tostring(L, -1);
+
+	running_region->game->addDependency(dependency);
+
+	return 0;
+}
+
 // Region-specific stuff
 Region::Region(const std::string& name, Game *g) : LuaScript(""), game(g), isComplete(false) {
 	init("world/" + name + ".lua");
@@ -161,6 +180,8 @@ void Region::move(const string &next) {
 
 void Region::pre_run() {
 	DEF_FUN("move", Lua_move);
+	DEF_FUN("depend", Region_depend);
+	DEF_FUN("findObject", GO_get);
 
 	GameObject **obj = (GameObject **)lua_newuserdata(L, sizeof(GameObject *));
 	luaL_setmetatable(L, "GameObject");

@@ -17,12 +17,15 @@ class GameObject {
 private:
 	std::unordered_map<std::string, std::string> properties;
 
+	std::string id;
+
 public:
 	std::string name;
 	int health, level;
 
-	GameObject() : level(1) { properties.clear(); };
+	GameObject(std::string id) : id(id), level(1) { properties.clear(); };
 
+	std::string getID() { return id; }
 	std::string getProperty(std::string prop);
 	void setProperty(std::string prop, std::string val);
 

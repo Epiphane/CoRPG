@@ -43,7 +43,14 @@ void Game::load() {
 	file_stream >> region;
 
 	player.load(file_stream);
-	boss.load(file_stream);
+	objects.clear();
+	while (!file_stream.eof()) {
+		string key;
+		file_stream >> key;
+		if (key == "") continue;
+		GameObject *obj = objects[key] = new GameObject(key);
+		obj->load(file_stream);
+	}
 	refreshScreen();
 }
 
@@ -56,7 +63,15 @@ void Game::save() {
 	stringstream file;
 	file << region << endl;
 	player.save(file);
-	boss.save(file);
+	
+	// Save other objects
+	unordered_map<string, GameObject *>::iterator it;
+	for(it = objects.begin(); it != objects.end(); it ++) {
+		if (it->second == NULL) continue;
+
+		file << it->first << endl;
+		it->second->save(file);
+	}
 	
 	fstream game(filename.c_str(), iostream::out);
 	if (!game.is_open()) {
@@ -73,6 +88,7 @@ void Game::play() {
 	string past_region = "";
 	while (!isComplete && past_region != region) {
 		past_region = region;
+		deps.clear();
 		Region current_region = Region(region, this);
 		if (current_region.error()) break;
 		
@@ -120,7 +136,7 @@ void Game::new_game() {
 	options.println();
 
 	options.print("      Enter world name: ");
-	boss.name = options.input();
+	name = options.input();
 	options.println();
 	options.println();
 
@@ -138,7 +154,10 @@ void Game::new_game() {
 	options.println();
 	
 	options.print("  Enter first boss name: "); 
-	boss.name = options.input();
+	string b_name = options.input();
+	GameObject *boss = objects["boss_room_boss"] = new GameObject("boss_room_boss");
+	boss->name = b_name;
+
 	options.println();
 
 	int suggestedHP = 100;
@@ -146,7 +165,7 @@ void Game::new_game() {
 	options.print("  Suggested: %d", suggestedHP);
 	options.println(); options.moveCursor(0, -2);
 	options.print("Enter first boss health: ");
-	boss.health = atoi(options.input().c_str());
+	boss->health = atoi(options.input().c_str());
 	options.println();
 	options.println();
 	options.println();
@@ -156,4 +175,29 @@ void Game::new_game() {
 	options.input(ALLOW_EMPTY);
 
 	save();
+}
+
+GameObject *Game::getObject(const std::string &name) {
+	GameObject *obj = objects[region + "_" + name];
+	if (obj != NULL)
+		return obj;
+	
+	// Look at dependencies
+	for (vector<string>::iterator dep = deps.begin(); dep < deps.end(); dep ++) {
+		obj = objects[(*dep) + "_" + name];
+		if (obj != NULL) {
+			return obj;
+		}
+	}
+	
+	return NULL;
+}
+
+GameObject *Game::newObject(const std::string &name) {
+	GameObject *obj = new GameObject(region + "_" + name);
+	obj->name = name;
+
+	objects[obj->getID()] = obj;
+
+	return obj;
 }

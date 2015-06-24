@@ -91,9 +91,12 @@ void GameObject::infoPage(string title) {
 
 	page.println();
 	page.println();
-	page.printlncenter("(enter)");
+	page.printlncenter("[Enter] - Continue");
 
 	refreshScreen();
 
-	page.input(ALLOW_EMPTY);
+	char ch = 0;
+	while (ch != 27 && ch != '\n') {
+		ch = page.getchar();
+	}
 }
