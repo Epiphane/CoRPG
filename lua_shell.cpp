@@ -120,7 +120,16 @@ int GO_setProperty(lua_State *L) {
 	string key = lua_tostring(L, 2);
 	string value = lua_tostring(L, 3);
 
-	(*box)->setProperty(key, value);
+	if (key == "name")
+		; // Name is immutable
+	else if (key == "health")
+		(*box)->health = atoi(value.c_str());
+	else if (key == "maxhealth")
+		(*box)->maxhealth = atoi(value.c_str());
+	else if (key == "level")
+		(*box)->level = atoi(value.c_str());
+	else
+		(*box)->setProperty(key, value);
 
 	return 0;
 }
@@ -229,6 +238,8 @@ void Region::post_run() {
 		if (ch == 27 && !game->pause())
 			isComplete = true;
 		else {
+			if (ch == 127) ch = '\b';
+
 			lua_pushvalue(L, -1); // Queue up update()
 			lua_pushlstring(L, &ch, 1);
 			SAFE_PCALL(lua_pcall(L, 1, 0, 0), "update");
