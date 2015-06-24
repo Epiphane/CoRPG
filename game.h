@@ -32,6 +32,8 @@ public:
 	GameObject *newObject(const std::string &name);
 
 	virtual void setRegion(const std::string &_r) { region = _r; }
+	std::string getRegion() { return region; }
+	std::string getName() { return name; }
 	void addDependency(const std::string region) { deps.push_back(region); }
 
 	virtual void load();

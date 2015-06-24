@@ -50,7 +50,7 @@ int Lua_setcursor(lua_State *L) {
 	return 0;
 }
 
-LuaScript::LuaScript(const std::string& filename) {
+LuaScript::LuaScript(const std::string& filename) : isComplete(false) {
 	L = luaL_newstate();
 	if (filename != "") // Must be initialized later!
 		init(filename);
@@ -63,9 +63,12 @@ void LuaScript::init(const std::string& filename) {
 	if (luaL_loadfile(L, filename.c_str())) {
 		L = NULL;
 		printError("Script not loaded: " + filename);
+		isComplete = true;
+		cout << "wat" << endl;
 		return;
 	}
-	luaL_openlibs(L);
+	else
+		luaL_openlibs(L);
 }
 
 #define DEF_FUN(name, fundef) lua_pushcfunction(L, fundef);\
@@ -78,6 +81,7 @@ void LuaScript::init(const std::string& filename) {
 void LuaScript::run() {
 	if (!L) {
 		printError("Script not loaded");
+		isComplete = true;
 		return;
 	}
 	
@@ -177,8 +181,9 @@ int Region_depend(lua_State *L) {
 }
 
 // Region-specific stuff
-Region::Region(const std::string& name, Game *g) : LuaScript(""), game(g), isComplete(false) {
+Region::Region(const std::string& name, Game *g) : LuaScript(""), game(g) {
 	init("world/" + name + ".lua");
+	if (error()) return;
 
 	// Create GameObject metatable
 	luaL_newmetatable(L, "GameObject");
@@ -199,10 +204,18 @@ void Region::move(const string &next) {
 	isComplete = true;
 }
 
+fstream region_file;
+int Lua_writetofile(lua_State *L) {
+	region_file << lua_tostring(L, 1) << endl;
+
+	return 0;
+}
+
 void Region::pre_run() {
 	DEF_FUN("move", Lua_move);
 	DEF_FUN("depend", Region_depend);
 	DEF_FUN("findObject", GO_get);
+	DEF_FUN("writeln", Lua_writetofile);
 
 	GameObject **obj = (GameObject **)lua_newuserdata(L, sizeof(GameObject *));
 	luaL_setmetatable(L, "GameObject");
@@ -223,6 +236,37 @@ void Region::post_run() {
 	// Get render and update functions
 	GET_AND_CHECK("render");
 	GET_AND_CHECK("update");
+
+	string save_file = "._" + game->getName() + "_regioninfo_" + game->getRegion();
+
+	// Load current state info
+	lua_getglobal(L, "loadData");
+	if (lua_isnil(L, -1) || !region_file.is_open()) {
+		lua_pop(L, 1);
+	}
+	else {
+		region_file.open(save_file, iostream::in);
+		if (region_file.is_open()) {
+			lua_newtable(L);
+
+			int line = 1;
+			string message;
+			while (!region_file.eof()) {
+				getline(region_file, message);
+
+				if (message.size() == 0) continue;
+
+				lua_pushnumber(L, line);
+				lua_pushstring(L, message.c_str());
+				lua_settable(L, -3);
+	
+				line ++;
+			}
+			
+			SAFE_PCALL(lua_pcall(L, 1, 0, 0), "load");
+		}
+	}
+	region_file.close();
 
 	char ch = 0;
 	while (!isComplete) {
@@ -245,6 +289,20 @@ void Region::post_run() {
 			SAFE_PCALL(lua_pcall(L, 1, 0, 0), "update");
 		}
 	}
+
+	// Save current state
+	lua_getglobal(L, "saveData");
+	if (lua_isnil(L, -1)) {
+		lua_pop(L, 1);
+	}
+	else {
+		region_file.open(save_file, iostream::out);
+
+		if (region_file.is_open()) {
+			SAFE_PCALL(lua_pcall(L, 0, 0, 0), "save");
+		}
+	}
+	region_file.close();
 }
 
 // Error reporting

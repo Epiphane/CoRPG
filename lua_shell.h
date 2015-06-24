@@ -38,6 +38,8 @@ public:
 		return 0;
 	}
 protected:
+	bool isComplete;
+
 	lua_State* L;
 
 	int level;
@@ -59,8 +61,6 @@ public:
 	bool error() { return L == NULL; }
 	Game *game;
 private:
-	bool isComplete;
-
 	void pre_run();
 	void post_run();
 };
