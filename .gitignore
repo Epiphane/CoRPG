@@ -5,3 +5,5 @@ weeblyfun
 lua-5.3.1/src/*.a
 lua-5.3.1/src/*.o
 save/*
+lua-5.3.1/src/lua
+lua-5.3.1/src/luac

@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <cstring>
 
 #include "box.h"
 #include "main.h"

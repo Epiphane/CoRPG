@@ -143,11 +143,11 @@ int GO_getProperty(lua_State *L) {
 	if (key == "name")
 		prop = (*box)->name;
 	else if (key == "health")
-		prop = std::to_string((*box)->health);
+		prop = std::to_string((long long int) (*box)->health);
 	else if (key == "maxhealth")
-		prop = std::to_string((*box)->maxhealth);
+		prop = std::to_string((long long int) (*box)->maxhealth);
 	else if (key == "level")
-		prop = std::to_string((*box)->level);
+		prop = std::to_string((long long int) (*box)->level);
 	else
 		prop = (*box)->getProperty(key).c_str();
 		

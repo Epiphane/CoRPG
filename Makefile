@@ -1,4 +1,4 @@
-CPP=g++
+CPP=g++ -std=c++0x
 CFLAGS=
 CPPFLAGS=
 
