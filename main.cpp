@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <ncurses.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 #include "main.h"
 #include "game.h"
@@ -17,6 +19,10 @@ int getRows() { return rows; }
 int getCols() { return cols; }
 
 int main(int argc, char *argv[]) {
+	DIR *saveDir = opendir("save");
+	if (saveDir == NULL)
+		mkdir("save", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
 	scr = initscr();								/* Start curses mode 		  */
 	noecho();
 	getmaxyx(stdscr,rows,cols);		/* get the number of rows and columns */

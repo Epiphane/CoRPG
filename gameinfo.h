@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <fstream>
 
-#define GAME_FILE "._gameinfo"
+#define GAME_FILE "save/._gameinfo"
 
 /* File saving */
 std::string encrypt(std::string message);

@@ -237,7 +237,7 @@ void Region::post_run() {
 	GET_AND_CHECK("render");
 	GET_AND_CHECK("update");
 
-	string save_file = "._" + game->getName() + "_regioninfo_" + game->getRegion();
+	string save_file = "save/._" + game->getName() + "_regioninfo_" + game->getRegion();
 
 	// Load current state info
 	lua_getglobal(L, "loadData");
