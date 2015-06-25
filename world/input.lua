@@ -25,3 +25,27 @@ function Input:update(input)
 	end
 end
 
+NumInput = {
+	done = false,
+	val = 0
+}
+function NumInput:new(o)
+	o = o or {}
+	o.done = false
+	o.val = 0
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+
+function NumInput:update(input)
+	if not self.done then
+		if (input == '\b') then
+			self.val = math.floor(self.val / 10)
+		elseif (input == '\n') then
+			self.done = true
+		elseif (input >= '0' and input <= '9') then
+			self.val = math.floor(self.val * 10 + (input - '0'))
+		end
+	end
+end

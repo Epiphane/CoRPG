@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <signal.h>
 
 #include "main.h"
 #include "game.h"
@@ -18,10 +19,29 @@ WINDOW *scr;
 int getRows() { return rows; }
 int getCols() { return cols; }
 
+void handle_signal(int s) {
+	if (getCurrentGame()) {
+		getCurrentGame()->save();
+	}
+	endwin();
+	cout << "Caught signal: " << s << endl;
+
+	exit(1);
+}
+
 int main(int argc, char *argv[]) {
 	DIR *saveDir = opendir("save");
 	if (saveDir == NULL)
 		mkdir("save", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+	// Setup SIGINT handler
+	/*struct sigaction sigIntHandler;
+	sigIntHandler.sa_handler = handle_signal;
+	sigemptyset(&sigIntHandler.sa_mask);
+	sigIntHandler.sa_flags = 0;
+	sigaction(SIGINT, &sigIntHandler, NULL);*/
+
+	signal(SIGINT, handle_signal);
 
 	scr = initscr();								/* Start curses mode 		  */
 	noecho();

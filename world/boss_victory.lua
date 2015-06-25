@@ -10,7 +10,7 @@ i = ""
 leaders = {}
 
 render = function()
-	window(40, 20, -10, 0)
+	window(40, 20, 0, 0)
 
 	println("Hooray!")
 	println()
@@ -26,6 +26,8 @@ render = function()
 	end
 
 	if name.done then
+		println()
+		println()
 		println("Press any key to continue...")
 	end
 
@@ -34,15 +36,14 @@ render = function()
 end
 
 update = function(input)
-	i = input
 	if not name.done then
 		name:update(input)
 
 		if name.done then
-			table.insert(leaders, 1, name.val)
+			table.insert(leaders, 1, name.val.." beat "..boss:get("name"))
 		end
 	else
-		move("tavern")
+		move("boss_create")
 	end
 end
 

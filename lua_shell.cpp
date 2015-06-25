@@ -89,8 +89,6 @@ void LuaScript::run() {
 	DEF_FUN("print", Lua_print);
 	DEF_FUN("println", Lua_println);
 	DEF_FUN("cursor", Lua_setcursor);
-	/*DEF_FUN("getch", L_println);
-	DEF_FUN("input", L_input);*/
 	pre_run();
 
 	SAFE_PCALL(lua_pcall(L, 0, 0, 0), "main");
@@ -125,7 +123,7 @@ int GO_setProperty(lua_State *L) {
 	string value = lua_tostring(L, 3);
 
 	if (key == "name")
-		; // Name is immutable
+		(*box)->name = value;
 	else if (key == "health")
 		(*box)->health = atoi(value.c_str());
 	else if (key == "maxhealth")
@@ -232,14 +230,9 @@ void Region::pre_run() {
 		printError(string(name) + " function is not defined");\
 		return;\
 	}
-void Region::post_run() {
-	// Get render and update functions
-	GET_AND_CHECK("render");
-	GET_AND_CHECK("update");
-
-	string save_file = "save/._" + game->getName() + "_regioninfo_" + game->getRegion();
-
+void Region::post_run() {	
 	// Load current state info
+	string save_file = "save/._" + game->getName() + "_regioninfo_" + game->getRegion();
 	lua_getglobal(L, "loadData");
 	if (lua_isnil(L, -1)) {
 		lua_pop(L, 1);
@@ -267,6 +260,10 @@ void Region::post_run() {
 		}
 	}
 	region_file.close();
+
+	// Get render and update functions
+	GET_AND_CHECK("render");
+	GET_AND_CHECK("update");
 
 	char ch = 0;
 	while (!isComplete) {
