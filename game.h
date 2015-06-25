@@ -12,7 +12,7 @@ class Game {
 private:
 	GameObject player;
 	std::unordered_map<std::string, GameObject *> objects;
-	LuaScript *current_region;
+	Region *current_region;
 
 	std::vector<std::string> deps;
 
@@ -24,7 +24,7 @@ private:
 	void new_game();
 
 public:
-	Game(std::string name) : player("game_player"), filename(std::string(GAME_FILE) + "_" + name), isComplete(false) { objects.clear(); };
+	Game(std::string name) : player("game_player"), current_region(NULL), filename(std::string(GAME_FILE) + "_" + name), isComplete(false) { objects.clear(); };
 
 	GameObject *getPlayer() { return &player; }
 

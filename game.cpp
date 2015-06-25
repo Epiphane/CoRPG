@@ -89,11 +89,15 @@ void Game::play() {
 	while (!isComplete && past_region != region) {
 		past_region = region;
 		deps.clear();
-		Region current_region = Region(region, this);
-		if (current_region.error()) break;
+
+		current_region = new Region(region, this);
+		if (current_region->error()) break;
 		
-		current_region.run();
-		if (current_region.error()) break;
+		current_region->run();
+		if (current_region->error()) break;
+
+		// Memory mamagement sucks
+		delete current_region;
 	}
 }
 
@@ -109,7 +113,10 @@ bool Game::pause() {
 	char ch;
 	do { ch = pauseScreen.getchar(); } while (ch != '1' && ch != '2');
 
-	if (ch == '1') return true;
+	if (ch == '1') {
+		if (current_region) current_region->render();
+		return true;
+	}
 	else {
 		save();
 		isComplete = true;

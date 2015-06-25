@@ -230,6 +230,18 @@ void Region::pre_run() {
 		printError(string(name) + " function is not defined");\
 		return;\
 	}
+void Region::render() {
+	// be careful with this function bro. Lots of things could go wrong
+	GET_AND_CHECK("render");
+
+	clear();
+	mvprintw(0, 0, ".-----------------------.");
+	mvprintw(1, 0, "| Press ESC to pause... |");
+	mvprintw(2, 0, "^-----------------------^");
+	SAFE_PCALL(lua_pcall(L, 0, 0, 0), "render");
+	refresh();			  
+}
+
 void Region::post_run() {	
 	// Load current state info
 	string save_file = "save/._" + game->getName() + "_regioninfo_" + game->getRegion();

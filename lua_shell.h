@@ -15,6 +15,7 @@ extern "C" {
 /* Script class */ 
 class LuaScript {
 public:
+	LuaScript() : L(NULL) {};
 	LuaScript(const std::string& filename);
 	void init(const std::string& filename);
 	~LuaScript();
@@ -56,8 +57,10 @@ inline std::string LuaScript::lua_getdefault() { return "null"; }
 class Game;
 class Region : public LuaScript {
 public:
+	Region() {};
 	Region(const std::string& name, Game *g);
 	void move(const std::string &region);
+	void render();
 	bool error() { return L == NULL; }
 	Game *game;
 private:

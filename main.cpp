@@ -20,11 +20,10 @@ int getRows() { return rows; }
 int getCols() { return cols; }
 
 void handle_signal(int s) {
-	if (getCurrentGame()) {
-		getCurrentGame()->save();
+	if (getCurrentGame() && getCurrentGame()->pause()) {
+		return;
 	}
 	endwin();
-	cout << "Caught signal: " << s << endl;
 
 	exit(1);
 }
