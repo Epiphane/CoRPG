@@ -21,7 +21,7 @@ render = function()
 
 	println()
 	println("Current Leaders:")
-	for n, name in pairs(leaders) do
+	for n, name in ipairs(leaders) do
 		println(n..". "..name)
 	end
 
@@ -39,7 +39,7 @@ update = function(input)
 		name:update(input)
 
 		if name.done then
-			table.insert(leaders, name.val)
+			table.insert(leaders, 1, name.val)
 		end
 	else
 		move("tavern")
@@ -53,7 +53,7 @@ saveData = function()
 end
 
 loadData = function(input)
-	for n, line in pairs(input) do
+	for n, line in ipairs(input) do
 		table.insert(leaders, line)
 	end
 end

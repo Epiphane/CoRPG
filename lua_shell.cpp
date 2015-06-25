@@ -241,7 +241,7 @@ void Region::post_run() {
 
 	// Load current state info
 	lua_getglobal(L, "loadData");
-	if (lua_isnil(L, -1) || !region_file.is_open()) {
+	if (lua_isnil(L, -1)) {
 		lua_pop(L, 1);
 	}
 	else {

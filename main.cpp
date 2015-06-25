@@ -20,6 +20,15 @@ int main(int argc, char *argv[]) {
 	scr = initscr();								/* Start curses mode 		  */
 	noecho();
 	getmaxyx(stdscr,rows,cols);		/* get the number of rows and columns */
+
+	const int MIN_ROWS = 30;
+	const int MIN_COLS = 95;
+	if (rows < MIN_ROWS || cols < MIN_COLS) {
+		endwin();
+		cout << "Your terminal window is of size " << cols << "x" << rows << endl;
+		cout << "Minimum size is " << MIN_COLS << "x" << MIN_ROWS << ". Please resize your window" << endl;
+		exit(0);
+	}
 beginGame:
 	splash();
 
