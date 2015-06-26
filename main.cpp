@@ -4,6 +4,12 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <errno.h>
+#include <string>
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+#include <unistd.h>
 
 #include "main.h"
 #include "game.h"
@@ -29,6 +35,25 @@ void handle_signal(int s) {
 }
 
 int main(int argc, char *argv[]) {
+#ifdef __APPLE__	
+	char path[1024];
+	uint32_t size = sizeof(path);
+	if (_NSGetExecutablePath(path, &size) != 0) {
+		printf("buffer too small; need size %u\n", size);
+		exit(1);
+	}
+#else
+	char path[1024];
+	readlink("/proc/self/exe", path, 1024);
+#endif
+
+	// Change to directory of executable
+	path[string(path).find_last_of('/')] = 0;
+	if(chdir(path)) {
+		cout << "Error changing to " << path << ": " << strerror(errno) << endl;
+		exit(1);
+	}
+
 	DIR *saveDir = opendir("save");
 	if (saveDir == NULL)
 		mkdir("save", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
