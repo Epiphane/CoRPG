@@ -1,9 +1,14 @@
 .DS_Store
 ._gameinfo*
 weeblyfun
+funserver
 *.o
 lua-5.3.1/src/*.a
 lua-5.3.1/src/*.o
-save/*
+.save/*
 lua-5.3.1/src/lua
 lua-5.3.1/src/luac
+*.swp
+.server.cout
+.server.cerr
+multistuff

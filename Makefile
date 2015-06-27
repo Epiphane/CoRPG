@@ -1,17 +1,28 @@
-CPP=g++ -std=c++0x
+CPP=g++
 CFLAGS=
-CPPFLAGS=
+CPPFLAGS= -std=c++0x
 
-OBJFILES=main.o game.o gameinfo.o box.o lua_shell.o
+OBJFILES=main_game.o game.o gameinfo.o box.o lua_shell.o
+SRVFILES=main_server.o server_lock.o
 
-all: weeblyfun
+INCLUDES=-Ilua-5.3.1/src/
+
+LIBS=-lncurses -Llua-5.3.1/src/ -llua
+
+all: funserver weeblyfun
 	
 
 clean: 
 	rm *.o
 
+funserver: $(SRVFILES)
+	$(CPP) $(CPPFLAGS) -o funserver $(SRVFILES) $(LIBS)
+
+multistuff: multi.o
+	$(CPP) $(CPPFLAGS) -o multistuff multi.o
+
 weeblyfun: $(OBJFILES)
-	$(CPP) -o weeblyfun $(OBJFILES) -lncurses -Llua-5.3.1/src/ -llua
+	$(CPP) $(CPPFLAGS) -o weeblyfun $(OBJFILES) $(LIBS)
 
 %.o: %.cpp %.h
-	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $< -Ilua-5.3.1/src/
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $< $(INCLUDES)
