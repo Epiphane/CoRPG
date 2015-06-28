@@ -11,4 +11,5 @@ lua-5.3.1/src/luac
 *.swp
 .server.cout
 .server.cerr
+.server.lock
 multistuff
