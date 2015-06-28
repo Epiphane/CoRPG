@@ -12,7 +12,7 @@ using namespace std;
 
 ServerLock s_mutex;
 
-void close_server();
+void close_server(int status);
 void handle_signal(int sig) {
 	if (sig == REQCONNECT) { // Open connection
 		cout << "Connection requested" << endl;
@@ -24,17 +24,21 @@ void handle_signal(int sig) {
 
 		cout << "Received signal " << sig << ".";
 
-		close_server();
+		close_server(1);
 	}
 }
 
 int serve() {
-	return 0;
-
 	fstream server_state("._serverinfo_", iostream::in);
 	if (!server_state.is_open()) {
-		cerr << "Error opening ._serverinfo_: " << strerror(errno) << endl;
-		return 1;
+		if (errno == ENOENT) {
+			// Clean slate!
+			while(1);
+		}
+		else {
+			cerr << "Error opening ._serverinfo_: " << strerror(errno) << endl;
+			return 1;
+		}
 	}
 
 	return 0;
@@ -69,14 +73,14 @@ int main(int argc, char *argv[]) {
 	signal(REQCONNECT, handle_signal);
 
 	s_mutex.ready();
-	serve();
+	int status = serve();
 
-	close_server();
+	close_server(status); // Returns 0
 }
 
-void close_server() {
+void close_server(int status) {
 	cout << "Closing server." << endl;
 	s_mutex.unlock();
 
-	exit(0);
+	exit(status);
 }

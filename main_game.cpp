@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 			close(0);
 			
 			// Create child process with server
-			execl("funserver", "funserver", NULL);
+			execl("funserver", "game", NULL);
 			cout << "Error opening server: " << strerror(errno) << endl;
 		}
 
