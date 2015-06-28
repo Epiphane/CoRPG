@@ -3,23 +3,21 @@
 
 class ServerLock {
 private:
-	const char* location  = "/corpgserver";
-	const char* LOCK      = ".server.lock";
-
 	const int SEM_LOCKED  = 0;
 	const int SEM_BLOCK   = 1;
 	const int SEM_UNTRIED = 2;
 	
-	int state;
+	int state, lockfile;
 
-	void init();
 public:
-	ServerLock();
+	ServerLock() : state(SEM_UNTRIED) {};
+
+	pid_t get_pid();
 
 	bool lock();
-	void unlock();
-	void relink();
-	bool is_open() { return state == SEM_LOCKED; }
+	void ready();
+	void unlock(bool force = false);
+	bool is_open();
 };
  
 #endif /* SERVER_LOCK_H */

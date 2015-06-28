@@ -15,6 +15,7 @@
 #include <mach-o/dyld.h>
 #endif
 
+#include "client_server.h"
 #include "main.h"
 #include "box.h"
 
@@ -50,13 +51,19 @@ int main(int argc, char *argv[]) {
 			// Create child process with server
 			execl("funserver", "funserver", NULL);
 			cout << "Error opening server: " << strerror(errno) << endl;
-
-			return 1;
 		}
+
+		return 1;
 	}
-	else {
-		cout << "Waiting" << endl;
+
+	// Client game now!
+	cout << "Opening connection to server..." << endl;
+	pid_t server = get_server();
+	if (server == -1) {
+		return 1;
 	}
+	cout << "Server: " << server << endl;
+	kill(server, REQCONNECT);
 
 	return 0;
 }
