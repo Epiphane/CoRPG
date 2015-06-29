@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 			close(0);
 			
 			// Create child process with server
-			execl("funserver", "game", NULL);
+			execl("funserver", "funserver", NULL);
 			cout << "Error opening server: " << strerror(errno) << endl;
 		}
 
@@ -58,12 +58,11 @@ int main(int argc, char *argv[]) {
 
 	// Client game now!
 	cout << "Opening connection to server..." << endl;
-	pid_t server = get_server();
-	if (server == -1) {
+	int conn = connect_to_server();
+	if (conn == -1) {
+		cout << "Server not connected. Aborting" << endl;
 		return 1;
 	}
-	cout << "Server: " << server << endl;
-	kill(server, REQCONNECT);
 
 	return 0;
 }

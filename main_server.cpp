@@ -6,26 +6,21 @@
 #include <unistd.h>
 
 #include "client_server.h"
-#include "server_lock.h"
+#include "server.h"
 
 using namespace std;
 
-ServerLock s_mutex;
+Server *server = NULL;
 
 void close_server(int status);
 void handle_signal(int sig) {
-	if (sig == REQCONNECT) { // Open connection
-		cout << "Connection requested" << endl;
+	if (sig == SIGSEGV) {
+		cerr << "Segmentation Fault" << endl;
 	}
-	else {
-		if (sig == SIGSEGV) {
-			cerr << "Segmentation Fault" << endl;
-		}
 
-		cout << "Received signal " << sig << ".";
+	cout << "Received signal " << sig << "." << endl;;
 
-		close_server(1);
-	}
+	close_server(1);
 }
 
 int serve() {
@@ -33,7 +28,6 @@ int serve() {
 	if (!server_state.is_open()) {
 		if (errno == ENOENT) {
 			// Clean slate!
-			while(1);
 		}
 		else {
 			cerr << "Error opening ._serverinfo_: " << strerror(errno) << endl;
@@ -41,46 +35,39 @@ int serve() {
 		}
 	}
 
+	bool conned = false;
+	while (!conned) {
+		server->checkConnections();
+	}
+
 	return 0;
 }
 
 int main(int argc, char *argv[]) {
-	for (int arg = 1; arg < argc; arg ++) {
-		if (strcmp(argv[arg], "--force") == 0) {	
-			s_mutex.unlock(true);
-			break;
-		}
+	server = new Server(SERVER_NAME);
+	int status = server->init(4);
+	if (status == 0) {
+		signal(SIGINT, handle_signal);
+		signal(SIGABRT, handle_signal);
+		signal(SIGFPE, handle_signal);
+		signal(SIGILL, handle_signal);
+		signal(SIGSEGV, handle_signal);
+		signal(SIGTERM, handle_signal);
+
+		server->setBlocking(false);
+		status = serve();
 	}
-	
-	s_mutex.lock();
-	// Get a lock on the server
-	if (!s_mutex.is_open()) {
-		if (strcmp(argv[0], "funserver") == 0) {
-			cout << "Server Locked. Aborting" << endl;
-		}
-
-		return 1;
-	}
-
-	cout << "Server opened on thread " << getpid() << endl;
-	
-	signal(SIGINT, handle_signal);
-	signal(SIGABRT, handle_signal);
-	signal(SIGFPE, handle_signal);
-	signal(SIGILL, handle_signal);
-	signal(SIGSEGV, handle_signal);
-	signal(SIGTERM, handle_signal);
-	signal(REQCONNECT, handle_signal);
-
-	s_mutex.ready();
-	int status = serve();
 
 	close_server(status); // Returns 0
 }
 
 void close_server(int status) {
-	cout << "Closing server." << endl;
-	s_mutex.unlock();
+	if (server != NULL && server->is_open()) {
+		cout << "Closing server." << endl;
+
+		server->release();
+		delete server;
+	}
 
 	exit(status);
 }

@@ -3,7 +3,7 @@ CFLAGS=
 CPPFLAGS= -std=c++0x
 
 OBJFILES=main_game.o game.o gameinfo.o box.o lua_shell.o client_server.o
-SRVFILES=main_server.o server_lock.o client_server.o
+SRVFILES=main_server.o client_server.o server.o
 
 INCLUDES=-Ilua-5.3.1/src/
 

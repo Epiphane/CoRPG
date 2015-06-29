@@ -1,12 +1,12 @@
 #ifndef CLIENT_SERVER_H
 #define CLIENT_SERVER_H 
 
-#include <signal.h>
 #include <unistd.h>
+#include <sys/socket.h>
 
-#define SERVER_LOCK ".server.lock"
-#define REQCONNECT SIGUSR1
+#define SERVER_NAME ".server"
 
-pid_t get_server();
+/* Open connection to server and return socket*/
+int connect_to_server();
 
 #endif /* CLIENT_SERVER_H */

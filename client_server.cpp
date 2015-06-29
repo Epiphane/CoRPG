@@ -1,55 +1,35 @@
 #include <iostream>
-#include <errno.h>
-#include <fcntl.h>
-#include <thread>
 #include <chrono>
+#include <thread>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <string.h>
+#include <errno.h>
 
 #include "client_server.h"
 
 using namespace std;
 
-pid_t get_server() {
-	// Get timeout for server to kick in
-	const int S_TIMEOUT = 2;
-	chrono::system_clock::time_point timeout = chrono::system_clock::now() + chrono::duration<int>(S_TIMEOUT);
-	int lockfile = -1;
-	while (lockfile < 0) {
-		lockfile = open(SERVER_LOCK, O_RDONLY);
+int connect_to_server() {
+	const int TIMEOUT = 3;
 	
-		if (lockfile < 0) {
-			if (errno != ENOENT || chrono::system_clock::now() > timeout) {
-				cerr << "Error opening server file: " << strerror(errno) << endl;
-				return -1;
-			}
-			else { // File does not exist.
-				this_thread::yield();
-			}
-		}
-	}
+	int conn = socket(PF_LOCAL, SOCK_STREAM, 0);
 
-	pid_t server_pid;
-	int numread = read(lockfile, &server_pid, sizeof(pid_t));
+	struct sockaddr_un address;
+	address.sun_family = AF_UNIX;
+	strcpy(address.sun_path, SERVER_NAME);
 
-	if (numread == -1) {
-		cerr << "Error reading server lock: " << strerror(errno) << endl;
-		return -1;
-	}
+	cout << "Connecting to " << address.sun_path << endl;
+	chrono::system_clock::time_point timeout = chrono::system_clock::now() + chrono::duration<int>(TIMEOUT);
+	int result;
+	do {
+		result = connect(conn, (sockaddr *)&address, sizeof(address));
+	} while (result < 0 && timeout > chrono::system_clock::now());
 
-	// Set timeout for lock opening
-	timeout = chrono::system_clock::now() + chrono::duration<int>(S_TIMEOUT);
-	while (numread == 0) {
-		numread = read(lockfile, &server_pid, sizeof(pid_t));
-		
-		if (numread == 0) {
-			if (chrono::system_clock::now() > timeout) {
-				cerr << "Error reading server lock: Data unavailable" << endl;
-				return -1;
-			}
-			else {
-				this_thread::yield();
-			}
-		}
+	if (result < 0) {
+		cout << "Error connecting to server: " << strerror(errno) << endl;
 	}
 	
-	return server_pid;	
+	return conn;
 }
