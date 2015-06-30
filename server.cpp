@@ -47,6 +47,12 @@ void Server::release() {
 		shutdown(conn, SHUT_RDWR);
 		unlink(name);
 	}
+
+	vector<Client>::iterator it;
+	for(it = clients.begin();it < clients.end();) {
+		it->close_read();
+		it = clients.erase(it);
+	}
 }
 
 void Server::setBlocking(bool blocking) {
@@ -64,13 +70,17 @@ void Server::setBlocking(bool blocking) {
 	} 
 }
 
-void Server::checkConnections() {
-	int newconn = accept(conn, NULL, NULL);
+Client *Server::accept() {
+	int newconn = ::accept(conn, NULL, NULL);
 
-	if (newconn < 0 && errno != EAGAIN) {
-		cerr << "Error accepting connection: " << strerror(errno) << endl;
+	if (newconn < 0) {
+		if (errno != EAGAIN) {
+			cerr << "Error accepting connection: " << strerror(errno) << endl;
+		}
+		return NULL;
 	}
-	else if (newconn >= 0) {
-		cout << "Opened socket " << newconn << "!" << endl;
+	else {
+		clients.push_back(Client(newconn));
+		return &clients[clients.size() - 1];
 	}
 }

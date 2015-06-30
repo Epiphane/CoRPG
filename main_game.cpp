@@ -58,11 +58,18 @@ int main(int argc, char *argv[]) {
 
 	// Client game now!
 	cout << "Opening connection to server..." << endl;
-	int conn = connect_to_server();
-	if (conn == -1) {
+	Client *conn = connect_to_server();
+	if (conn == NULL) {
 		cout << "Server not connected. Aborting" << endl;
 		return 1;
 	}
+
+	char buf[100];
+	ssize_t res = conn->recv(buf, 100, 0);
+
+	buf[res + 1] = 0;
+
+	cout << "Received (" << res << "): " << buf << endl;
 
 	return 0;
 }

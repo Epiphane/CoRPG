@@ -2,10 +2,15 @@
 #define SERVER_H 
 
 #include <sys/un.h>
+#include <vector>
+
+#include "client_server.h"
 
 class Server {
 private:
 	int conn;
+	std::vector<Client> clients;
+
 	char name[_POSIX_PATH_MAX];
 	struct sockaddr_un address;
 
@@ -18,7 +23,7 @@ public:
 	void release();
 
 	void setBlocking(bool blocking);
-	void checkConnections();
+	Client *accept();
 };
 
 #endif /* SERVER_H */

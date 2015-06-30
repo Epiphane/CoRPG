@@ -11,7 +11,7 @@
 
 using namespace std;
 
-int connect_to_server() {
+Client *connect_to_server() {
 	const int TIMEOUT = 3;
 	
 	int conn = socket(PF_LOCAL, SOCK_STREAM, 0);
@@ -29,7 +29,20 @@ int connect_to_server() {
 
 	if (result < 0) {
 		cout << "Error connecting to server: " << strerror(errno) << endl;
+		return NULL;
 	}
 	
-	return conn;
+	return new Client(conn);
+}
+
+ssize_t Client::send(void *buffer, size_t len, int flags) {
+	return ::send(conn, buffer, len, flags);
+}
+
+ssize_t Client::recv(void *buffer, size_t len, int flags) {
+	return ::recv(conn, buffer, len, flags);
+}
+
+void Client::release(int flags) {
+	shutdown(conn, flags);
 }

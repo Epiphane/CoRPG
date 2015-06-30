@@ -37,7 +37,13 @@ int serve() {
 
 	bool conned = false;
 	while (!conned) {
-		server->checkConnections();
+		Client *newClient = server->accept();
+		if (newClient) {
+			const char *msg = "Hello client!";
+			ssize_t res = newClient->send((void *)msg, 14, 0);
+
+			cout << "Sent (" << res << ") " << msg << endl;
+		}
 	}
 
 	return 0;
@@ -47,6 +53,9 @@ int main(int argc, char *argv[]) {
 	server = new Server(SERVER_NAME);
 	int status = server->init(4);
 	if (status == 0) {
+		cout << "-------------" << endl;
+		cerr << "-------------" << endl;
+
 		signal(SIGINT, handle_signal);
 		signal(SIGABRT, handle_signal);
 		signal(SIGFPE, handle_signal);
