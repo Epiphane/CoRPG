@@ -43,6 +43,8 @@ int serve() {
 			ssize_t res = newClient->send((void *)msg, 14, 0);
 
 			cout << "Sent (" << res << ") " << msg << endl;
+
+			conned = true;
 		}
 	}
 

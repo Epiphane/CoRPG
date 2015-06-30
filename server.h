@@ -11,7 +11,7 @@ private:
 	int conn;
 	std::vector<Client> clients;
 
-	char name[_POSIX_PATH_MAX];
+	char name[100];
 	struct sockaddr_un address;
 
 public:

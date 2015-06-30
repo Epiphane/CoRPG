@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <string>
+#include <string.h>
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #endif
