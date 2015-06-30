@@ -15,6 +15,7 @@
 #include <mach-o/dyld.h>
 #endif
 
+#include "server_update.h"
 #include "client_server.h"
 #include "main.h"
 #include "box.h"
@@ -30,46 +31,60 @@ int main(int argc, char *argv[]) {
 	if (chdir_to_executable() != SUCCESS) {
 		return 1;
 	}
-	
-	// Run server if it hasn't been opened already
-	if (!fork()) {
-		int server_logs[2];
-		const int flags = O_WRONLY | O_APPEND | O_CREAT;
-		const int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-		server_logs[0] = open(".server.cout", flags, mode);
-		server_logs[1] = open(".server.cerr", flags, mode);
-		if (server_logs[0] < 0 || server_logs[1] < 0) {
-			cerr << "Error opening server logs: " << strerror(errno) << endl;
-		}
-		else {
-			// Redirect output
-			dup2(server_logs[0], 1);
-			dup2(server_logs[1], 2);
-			// Avoid command line input
-			close(0);
-			
-			// Create child process with server
-			execl("funserver", "funserver", NULL);
-			cout << "Error opening server: " << strerror(errno) << endl;
-		}
 
-		return 1;
+	cout << "Opening connection to server..." << endl;
+	// See if server is open
+	struct stat buffer;   
+	if (stat (SERVER_NAME, &buffer) != 0) { // server port doesn't exist
+		// Run server if it hasn't been opened already
+		cout << "Opening server..." << endl;
+		if (!fork()) {
+			int server_logs[2];
+			const int flags = O_WRONLY | O_APPEND | O_CREAT;
+			const int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+			server_logs[0] = open(".server.cout", flags, mode);
+			server_logs[1] = open(".server.cerr", flags, mode);
+			if (server_logs[0] < 0 || server_logs[1] < 0) {
+				cerr << "Error opening server logs: " << strerror(errno) << endl;
+			}
+			else {
+				// Redirect output
+				dup2(server_logs[0], 1);
+				dup2(server_logs[1], 2);
+				// Avoid command line input
+				close(0);
+
+				cout << "------------" << endl;
+				cerr << "------------" << endl;
+				
+				// Create child process with server
+				execl("funserver", "funserver", NULL);
+				cout << "Error opening server: " << strerror(errno) << endl;
+			}
+	
+			return 1;
+		}
 	}
 
 	// Client game now!
-	cout << "Opening connection to server..." << endl;
 	Client *conn = connect_to_server();
 	if (conn == NULL) {
 		cout << "Server not connected. Aborting" << endl;
 		return 1;
 	}
 
-	char buf[100];
-	ssize_t res = conn->recv(buf, 100, 0);
+	ServerUpdate upd;
+	upd.method = PLAYER_UPDATE;
+	strcpy(upd.data, "Hello sevrer");
 
-	buf[res + 1] = 0;
+	conn->send(&upd, sizeof(ServerUpdate), 0);
+	strcpy(upd.data, "Hedfbjnlo sevrer");
 
-	cout << "Received (" << res << "): " << buf << endl;
+	for(unsigned long i = 0; i < 1000000000; i ++);
+
+	int res = conn->recv(&upd, sizeof(ServerUpdate), 0);
+	cout << "Received " << res << endl;
+	cout << "Message: " << upd.data << endl;
 
 	return 0;
 }

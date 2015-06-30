@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <string>
 #include <signal.h>
 #include <string.h>
@@ -23,6 +24,13 @@ void handle_signal(int sig) {
 	close_server(1);
 }
 
+vector<ServerUpdate> updates;
+void updateGame(ServerUpdate *update) {
+	cout << "Update!" << endl;
+
+	updates.push_back(*update);
+}
+
 int serve() {
 	fstream server_state("._serverinfo_", iostream::in);
 	if (!server_state.is_open()) {
@@ -35,17 +43,10 @@ int serve() {
 		}
 	}
 
-	bool conned = false;
-	while (!conned) {
-		Client *newClient = server->accept();
-		if (newClient) {
-			const char *msg = "Hello client!";
-			ssize_t res = newClient->send((void *)msg, 14, 0);
-
-			cout << "Sent (" << res << ") " << msg << endl;
-
-			conned = true;
-		}
+	while (server->numClients() > 0) {
+		updates.clear();
+		server->recv_update(updateGame);
+		server->send_update(updates);
 	}
 
 	return 0;
@@ -55,9 +56,6 @@ int main(int argc, char *argv[]) {
 	server = new Server(SERVER_NAME);
 	int status = server->init(4);
 	if (status == 0) {
-		cout << "-------------" << endl;
-		cerr << "-------------" << endl;
-
 		signal(SIGINT, handle_signal);
 		signal(SIGABRT, handle_signal);
 		signal(SIGFPE, handle_signal);
@@ -66,6 +64,10 @@ int main(int argc, char *argv[]) {
 		signal(SIGTERM, handle_signal);
 
 		server->setBlocking(false);
+		// Get the first connection
+		while (server->accept() == NULL);
+
+		// Then serve as normal
 		status = serve();
 	}
 

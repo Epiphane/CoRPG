@@ -84,3 +84,48 @@ Client *Server::accept() {
 		return &clients[clients.size() - 1];
 	}
 }
+
+void Server::recv_update(reaction callback) {
+	ServerUpdate message;
+
+	vector<Client>::iterator it = clients.begin();
+	while (it < clients.end()) {
+		ssize_t res = it->recv(&message, sizeof(message), 0);
+		if (res == 0) {
+			// Connection closed
+			it = clients.erase(it);
+		}
+		else {
+			if (res < 0) {
+				// Nothing yet...
+				if (errno != EAGAIN) {
+					cerr << "Error receiving from client: " << strerror(errno) << endl;
+				}
+			}
+			else {
+				if (res < sizeof(message)) {
+					cerr << "Only " << res << " bytes received / " << sizeof(message) << endl;
+				}
+				else {
+					callback(&message);
+				}
+			}
+
+			it ++;
+		}
+	}
+}
+
+void Server::send_update(const std::vector<ServerUpdate> &updates) {
+	vector<ServerUpdate>::const_iterator upd;
+	vector<Client>::iterator       cli;
+	// Gross...On^2
+	for (upd = updates.begin(); upd < updates.end(); upd ++) {
+		for (cli = clients.begin(); cli < clients.end(); cli ++) {
+			ssize_t res = cli->send((void *)&(*upd), sizeof(ServerUpdate), 0);
+			if (res < 0) {
+				cerr << "Error sending to client: " << strerror(errno) << endl;
+			}
+		}
+	}
+}

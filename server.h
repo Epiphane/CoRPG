@@ -5,6 +5,9 @@
 #include <vector>
 
 #include "client_server.h"
+#include "server_update.h"
+
+typedef void (*reaction)(ServerUpdate *);
 
 class Server {
 private:
@@ -24,6 +27,10 @@ public:
 
 	void setBlocking(bool blocking);
 	Client *accept();
+	int numClients() { return clients.size(); }
+
+	void recv_update(reaction callback);
+	void send_update(const std::vector<ServerUpdate> &updates);
 };
 
 #endif /* SERVER_H */

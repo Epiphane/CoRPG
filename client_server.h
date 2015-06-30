@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 
 #define SERVER_NAME ".server"
+#define SERVER_SIG 123
 
 /* Keeps track of existing connections */
 class Client {
