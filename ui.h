@@ -39,7 +39,7 @@ private:
 
 	void init(int w, int h, int x, int y);
 public:
-	Window(int w, int h) : Window(w, h, 0, 0) {};
+	Window(int w, int h);
 	Window(int w, int h, int x, int y);
 	Window(std::string filename);
 

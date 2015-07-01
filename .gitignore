@@ -13,3 +13,4 @@ lua-5.3.1/src/luac
 .server.cerr
 .server.lock
 multistuff
+libcurl.so

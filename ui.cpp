@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <ncurses.h>
+#include <cstring>
+#include <algorithm>
 
 #include "ui.h"
 
@@ -66,9 +68,8 @@ std::string UI::input(int flags) {
 	return output;
 }
 
-Window::Window(int w, int h, int x, int y) {
-	init(w, h, x, y);
-}
+Window::Window(int w, int h) { init(w, h, 0, 0); }
+Window::Window(int w, int h, int x, int y) {	init(w, h, x, y); }
 
 Window::Window(string filename) {
 	ifstream file(filename);

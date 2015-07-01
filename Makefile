@@ -6,7 +6,7 @@ FUNFILES=main.o ui.o jsoncpp.o game.o curl.o gameinfo.o
 OBJFILES=main_game.o   client_server.o game.o gameinfo.o box.o lua_shell.o
 SRVFILES=main_server.o client_server.o server.o
 
-INCLUDES=-Ilua-5.3.1/src/
+INCLUDES=-Ilua-5.3.1/src/ -Icurl-include/
 
 LIBS=-lncurses -Llua-5.3.1/src/ -llua -L. -lcurl
 
