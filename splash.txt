@@ -1,0 +1,8 @@
+48 12
+* WeeblyRPG *
+
+By Thomas Steinke
+
+(space) - Play
+(h)     - Help
+(q)     - Quit

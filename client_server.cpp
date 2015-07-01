@@ -33,26 +33,27 @@ Client *connect_to_server() {
 		return NULL;
 	}
 
-	// Set socket to nonblocking
-	int flags; 
-
-	if ((flags = fcntl(conn, F_GETFL, 0)) < 0) { 
-		cerr << "Error getting socket flags: " << strerror(errno) << endl;
-	} 
-
-	int res = fcntl(conn, F_SETFL, flags | O_NONBLOCK);
-	if (res < 0) {
-		cerr << "Error setting socket mode: " << strerror(errno) << endl;
-	} 
-	
 	return new Client(conn);
 }
 
 ssize_t Client::send(void *buffer, size_t len, int flags) {
+	ssize_t res = ::send(conn, &len, sizeof(size_t), flags);
+	if (res < 0) {
+		cerr << "Error sending data: " << strerror(errno) << endl;
+		return res;
+	}
+
 	return ::send(conn, buffer, len, flags);
 }
 
-ssize_t Client::recv(void *buffer, size_t len, int flags) {
+ssize_t Client::recv(void *buffer, int flags) {
+	size_t len;
+	int res = ::recv(conn, &len, sizeof(size_t), flags);
+	if (res < 0) {
+		cerr << "Error receiving data: " << strerror(errno) << endl; 
+		return res;
+	}
+
 	return ::recv(conn, buffer, len, flags);
 }
 

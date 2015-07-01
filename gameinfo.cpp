@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "main.h"
 #include "gameinfo.h"
+#include "ui.h"
 
 using namespace std;
 
@@ -73,9 +73,9 @@ void GameObject::setProperty(std::string prop, std::string val) {
 }
 
 void GameObject::infoPage(string title) {
-	clearScreen();
+	UI::clear();
 
-	ScrBox page(30, 11 + properties.size());
+	Window page(30, 11 + properties.size());
 
 	page.printlncenter(title.c_str());
 	page.println();
@@ -94,10 +94,7 @@ void GameObject::infoPage(string title) {
 	page.println();
 	page.printlncenter("[Enter] - Continue");
 
-	refreshScreen();
+	UI::refresh();
 
-	char ch = 0;
-	while (ch != 27 && ch != '\n') {
-		ch = page.getchar();
-	}
+	UI::getchar(vector<char>({ 27, '\n' }));
 }

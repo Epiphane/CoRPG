@@ -90,7 +90,7 @@ void Server::recv_update(reaction callback) {
 
 	vector<Client>::iterator it = clients.begin();
 	while (it < clients.end()) {
-		ssize_t res = it->recv(&message, sizeof(message), 0);
+		ssize_t res = it->recv(&message, 0);
 		if (res == 0) {
 			// Connection closed
 			it = clients.erase(it);

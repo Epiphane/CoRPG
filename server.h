@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "client_server.h"
-#include "server_update.h"
 
 typedef void (*reaction)(ServerUpdate *);
 

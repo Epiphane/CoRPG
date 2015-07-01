@@ -73,18 +73,11 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	ServerUpdate upd;
-	upd.method = PLAYER_UPDATE;
-	strcpy(upd.data, "Hello sevrer");
+	conn->send(REQUEST, "player");
 
-	conn->send(&upd, sizeof(ServerUpdate), 0);
-	strcpy(upd.data, "Hedfbjnlo sevrer");
-
-	for(unsigned long i = 0; i < 1000000000; i ++);
-
-	int res = conn->recv(&upd, sizeof(ServerUpdate), 0);
-	cout << "Received " << res << endl;
-	cout << "Message: " << upd.data << endl;
+	GameObject player;
+	conn->recv(&player, 0);
+	cout << "Player name: " << player.name << endl;
 
 	return 0;
 }

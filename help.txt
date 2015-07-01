@@ -1,0 +1,16 @@
+50 20
+WeeblyRPG is a text-based RPG where  
+everyone plays the same character!   
+
+Work together to strengthen the hero,
+and defeat the boss to add your name 
+to the trophy room!                  
+
+Be careful, though:                  
+If someone beats the monster before  
+you, they get the fame and you get   
+...
+NOTHING!!                            
+
+(space) - Go back
+(q)     - Quit   
