@@ -5,10 +5,10 @@ namespace Data;
 class DB
 {
 	// Database connection
-	private static $host = "thomassteinke.db";
-	private static $username = "thomassteink";
-	private static $password = "2bORNOT2b";
-	private static $database = "corpg";
+	private static $host     = DB_HOST;
+	private static $username = DB_USER;
+	private static $password = DB_PASS;
+	private static $database = DB_NAME;
 
 	public static function getConnection() {
 		$connect = mysqli_connect(self::$host, self::$username, self::$password, self::$database);

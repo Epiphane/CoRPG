@@ -1,5 +1,6 @@
 <?php
 
+require_once("config.php");
 require_once("Data/DAO.php");
 require_once(__DIR__ . "/GameObject/Model/GameObjectPropertyModel.php");
 require_once(__DIR__ . "/GameObject/Model/GameObjectModel.php");
