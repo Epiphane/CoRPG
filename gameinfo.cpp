@@ -9,13 +9,12 @@ using namespace std;
 
 void GameObject::fetch() {
 	Json::Value info = Curl::GET(region + "/" + name);
-	level     = info["level"].asInt();
-	health    = info["health"].asInt();
-	maxhealth = info["max_health"].asInt();
-
+	
 	properties = info["properties"];
-
-	infoPage("Player");
+	
+	level     = properties["level"].asInt();
+	health    = properties["health"].asInt();
+	maxhealth = properties["max_health"].asInt();
 }
 
 void GameObject::save() {
@@ -50,12 +49,17 @@ void GameObject::infoPage(string title) {
 	page.println();
 
 	page.printlncenter("Name: %s", name.c_str());
-	page.printlncenter("Health: %d", health);
 
 	Json::Value::Members keys = properties.getMemberNames();
 	Json::Value::Members::iterator it = keys.begin();
 	while (it != keys.end()) {
-		page.printlncenter("%s: %s", it->c_str(), properties[*it].asCString());
+		Json::Value value    = properties[*it];
+		Json::ValueType type = value.type();
+		if (type == Json::intValue)
+			page.printlncenter("%s: %s", it->c_str(), std::to_string(properties[*it].asInt()).c_str());
+		else
+			page.printlncenter("%s: %s", it->c_str(), properties[*it].asCString());
+
 		it ++;
 	}
 

@@ -22,8 +22,6 @@ void Game::load() {
 	UI::refresh();
 
 	player.fetch();
-
-	UI::getchar();
 }
 
 void Game::save() {
@@ -32,7 +30,12 @@ void Game::save() {
 void Game::play() {
 	load();
 
-	cout << "Sup" << endl;
+	player.infoPage("Player stats");
+
+	Window intro(20, 5);
+
+	intro.printlncenter("Loading tavern...");
+	UI::getchar();
 }
 
 bool Game::pause() {

@@ -38,12 +38,13 @@ class GameObjectModel extends \Data\Model
 			$properties[$prop->property] = $prop->value;
 		}
 
+		$properties["level"] = $this->level;
+		$properties["health"] = $this->health;
+		$properties["max_health"] = $this->max_health;
+
 		return [
 			"name" => $this->name,
 			"region" => $this->region,
-			"level" => $this->level,
-			"health" => $this->health,
-			"max_health" => $this->max_health,
 			"properties" => $properties
 		];
 	}
