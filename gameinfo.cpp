@@ -1,74 +1,42 @@
 #include <iostream>
 #include <sstream>
 
+#include "curl.h"
 #include "gameinfo.h"
 #include "ui.h"
 
 using namespace std;
 
-/* Game file encryption */
-string encrypt(string message) {
-	for (int i = 0; i < message.size(); i ++)
-		message[i] = message[i];
+void GameObject::fetch() {
+	Json::Value info = Curl::GET(region + "/" + name);
+	level     = info["level"].asInt();
+	health    = info["health"].asInt();
+	maxhealth = info["max_health"].asInt();
 
-	return message;
+	properties = info["properties"];
+
+	infoPage("Player");
 }
 
-string decrypt(string message) {
-	return encrypt(message) + "\n";
+void GameObject::save() {
+
 }
 
-void write_file(fstream &file, stringstream &input) {
-	string message;
-	while (!input.eof()) {
-		getline(input, message);
-		file << decrypt(message);
-	}
-}
+Json::Value GameObject::get(std::string prop) {
+	if (prop == "name")
+		return name;
+	else if (prop == "region")
+		return region;
 
-void read_file(fstream &file, stringstream &output) {
-	string message;
-	while (!file.eof()) {
-		getline(file, message);
-		output << decrypt(message);
-	}
-}
-
-void GameObject::load(stringstream &input) {
-	input >> name;
-	input >> level;
-	input >> maxhealth;
-	input >> health;
-
-	string line;
-	input >> line;
-	while (line != ";" && !input.eof()) {
-		string val;
-		getline(input, val);
-
-		properties[line] = val.substr(1);
-
-		input >> line;
-	}
-}
-
-void GameObject::save(stringstream &output) {
-	output << name << "\n" << level << "\n" << maxhealth << "\n" << health << "\n";
-
-	unordered_map<string, string>::iterator it = properties.begin();
-	while (it != properties.end()) {
-		output << it->first << " " << it->second << "\n";
-		it ++;
-	}
-
-	output << ";" << "\n";
-}
-
-std::string GameObject::getProperty(std::string prop) {
 	return properties[prop];
 }
 
-void GameObject::setProperty(std::string prop, std::string val) {
+void GameObject::set(std::string prop, Json::Value val) {
+	if (prop == "health")
+		return;
+	else if (prop == "region")
+		return;
+
 	properties[prop] = val;
 }
 
@@ -84,9 +52,10 @@ void GameObject::infoPage(string title) {
 	page.printlncenter("Name: %s", name.c_str());
 	page.printlncenter("Health: %d", health);
 
-	unordered_map<string, string>::iterator it = properties.begin();
-	while (it != properties.end()) {
-		page.printlncenter("%s: %s", it->first.c_str(), it->second.c_str());
+	Json::Value::Members keys = properties.getMemberNames();
+	Json::Value::Members::iterator it = keys.begin();
+	while (it != keys.end()) {
+		page.printlncenter("%s: %s", it->c_str(), properties[*it].asCString());
 		it ++;
 	}
 

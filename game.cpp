@@ -21,8 +21,7 @@ void Game::load() {
 
 	UI::refresh();
 
-	Json::Value val = Curl::GET("http://thomassteinke.com/CoRPG/");
-	cout << val["world"] << endl;
+	player.fetch();
 
 	UI::getchar();
 }

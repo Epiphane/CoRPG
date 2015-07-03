@@ -6,6 +6,8 @@
 #include "gameinfo.h"
 #include "json/json.h"
 
+const std::string API_BASE = "http://thomassteinke.com/CoRPG/";
+
 namespace Curl {
 	Json::Value GET(std::string url);
 //	GameObject *GET(std::string name);

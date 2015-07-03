@@ -30,6 +30,8 @@ inline Json::Value json_perform(CURL *handle, string url) {
 }
 
 Json::Value Curl::GET(string url) {
+	url = API_BASE + url;
+
 	CURL *handle = curl_easy_init();
 
 	curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
@@ -39,7 +41,7 @@ Json::Value Curl::GET(string url) {
 }
 
 GameObject *Curl::GET(string name, vector<string> deps) {
-	return new GameObject();
+	return NULL;
 }
 
 void Curl::POST(GameObject *obj) {

@@ -5,22 +5,26 @@
 #include <unordered_map>
 #include <fstream>
 
+#include "json/json.h"
+
 /* File saving */
 class GameObject {
 private:
-	std::unordered_map<std::string, std::string> properties;
+	Json::Value properties;
 
 public:
-	std::string name;
+	std::string name, region;
 	int health, maxhealth, level;
 
-	GameObject() : level(1) { properties.clear(); };
+	GameObject(std::string name, std::string region) : name(name), region(region) { properties.clear(); };
+	
+	void sync() { save(); fetch(); }
+	void fetch();
+	void save();
+	Json::Value get(std::string val);
+	void set(std::string prop, Json::Value val);
 
-	std::string getProperty(std::string prop);
-	void setProperty(std::string prop, std::string val);
-
-	virtual void load(std::stringstream &input);
-	virtual void save(std::stringstream &input);
 	virtual void infoPage(std::string title);
 };
+
 #endif
