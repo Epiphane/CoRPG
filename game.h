@@ -5,9 +5,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "gameinfo.h"
 #include "json/json.h"
-
-class GameObject;
 
 class Game {
 private:
@@ -26,6 +25,7 @@ private:
 public:
 	static Game *instance();
 
+	GameObject *getPlayer() { return &player; }
 	GameObject *getObject(const std::string &name);
 	GameObject *newObject(const std::string &name);
 

@@ -48,7 +48,7 @@ void GameObject::infoPage(string title) {
 	page.println();
 	page.println();
 
-	page.printlncenter("Name: %s", name.c_str());
+	page.printlnleft("Name: %s", name.c_str());
 
 	Json::Value::Members keys = properties.getMemberNames();
 	Json::Value::Members::iterator it = keys.begin();
@@ -56,9 +56,9 @@ void GameObject::infoPage(string title) {
 		Json::Value value    = properties[*it];
 		Json::ValueType type = value.type();
 		if (type == Json::intValue)
-			page.printlncenter("%s: %s", it->c_str(), std::to_string(properties[*it].asInt()).c_str());
+			page.printlnleft("%s: %s", it->c_str(), std::to_string(properties[*it].asInt()).c_str());
 		else
-			page.printlncenter("%s: %s", it->c_str(), properties[*it].asCString());
+			page.printlnleft("%s: %s", it->c_str(), properties[*it].asCString());
 
 		it ++;
 	}

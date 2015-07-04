@@ -37,11 +37,11 @@ private:
 	int x1, x2, y1, y2;
 	int curx, cury;
 
-	void init(int w, int h, int x, int y);
 public:
 	Window(int w, int h);
 	Window(int w, int h, int x, int y);
 	Window(std::string filename);
+	void init(int w, int h, int x, int y);
 
 	static void printMessage(std::string title, std::string message);
 	static void printError(std::string message) { printMessage("Error", message); }

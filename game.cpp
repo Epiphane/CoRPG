@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+#include "js_shell.h"
 #include "curl.h"
 #include "game.h"
 #include "ui.h"
@@ -22,6 +23,9 @@ void Game::load() {
 	UI::refresh();
 
 	player.fetch();
+	player.infoPage("Player stats");
+
+	region = "tavern";
 }
 
 void Game::save() {
@@ -30,12 +34,15 @@ void Game::save() {
 void Game::play() {
 	load();
 
-	player.infoPage("Player stats");
+	while (!isComplete) {
+		JSRegion current_region = JSRegion("world/" + region + ".js", this);
+		if (current_region.error()) break;
 
-	Window intro(20, 5);
+		current_region.run();
+		if (current_region.error()) break;
 
-	intro.printlncenter("Loading tavern...");
-	UI::getchar();
+		current_region = JSRegion(region, this);
+	}
 }
 
 bool Game::pause() {

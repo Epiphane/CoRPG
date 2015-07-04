@@ -89,6 +89,10 @@ Window::Window(string filename) {
 }
 
 void Window::init(int w, int h, int x, int y) {
+	if (w == 0) {
+		return;
+	}
+
 	x1 = x + UI::getCols() / 2 - w / 2;
 	y1 = y + UI::getRows() / 2 - h / 2;
 	x2 = x1 + w;
@@ -168,7 +172,7 @@ void Window::println(Align alignment, const char *format, va_list args) {
 void Window::print(Align align, const char *format, va_list args) {
 	char buffer[256];
 	memset(buffer, 0, sizeof(buffer));
-		
+
 	vsprintf(buffer, format, args);
 	
 	int len = strlen(buffer);
