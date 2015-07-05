@@ -18,6 +18,7 @@ size_t write_data(void *buf, size_t size, size_t nmemb, void *userp) {
 
 inline Json::Value json_perform(CURL *handle, string url) {
 	Json::Value result;
+	CurlBufferNdx = 0;
 	if (curl_easy_perform(handle) != CURLE_OK) {
 		cerr << "Error sending request to " << url << endl;
 	}
@@ -40,8 +41,20 @@ Json::Value Curl::GET(string url) {
 	return json_perform(handle, url);
 }
 
-GameObject *Curl::GET(string name, vector<string> deps) {
-	return NULL;
+Json::Value Curl::GET(string url, vector<string> deps) {
+	url = API_BASE + url + "?deps=";
+
+	vector<string>::iterator it = deps.begin();
+	for (;it < deps.end(); it ++) {
+		url += *it + ",";
+	}
+
+	CURL *handle = curl_easy_init();
+
+	curl_easy_setopt(handle, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data);
+
+	return json_perform(handle, url);
 }
 
 void Curl::POST(GameObject *obj) {

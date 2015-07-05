@@ -116,40 +116,118 @@ void JSScript::run() {
 
 /* GameObject and Region Stuff */
 JSRegion *running_region;
-inline void duk_dereference(duk_context *ctx, duk_idx_t index) {
-	duk_get_prototype(ctx, index); // Get this.__proto__
+inline GameObject *duk_get_this(duk_context *ctx) {
+	duk_push_this(ctx);
+	duk_get_prototype(ctx, -1); // Get this.__proto__
 	duk_get_prop_string(ctx, -1, "valueOf");
-	duk_dup(ctx, index - 2);
+	duk_dup(ctx, -3);
 	duk_call_method(ctx, 0);
-	void *result = duk_get_pointer(ctx, -1);
-	duk_pop_2(ctx); // Pop this.__proto__ and result
+	GameObject *result = (GameObject *)duk_get_pointer(ctx, -1);
+	duk_pop_3(ctx); // Pop this, this.__proto__ and result
 
-	duk_push_pointer(ctx, result);
+	return result;
+}
+
+bool isInt(string prop) {
+	return prop == "level" || prop == "health" || prop == "max_health";
 }
 
 int GO_create(duk_context *ctx) {
-	return 0;
+	Json::Value defaults;
+	duk_enum(ctx, 1, DUK_ENUM_OWN_PROPERTIES_ONLY);
+	while (duk_next(ctx, -1, 1)) {
+		string prop = duk_get_string(ctx, -2);
+		if (isInt(prop))
+			defaults[prop] = duk_get_int(ctx, -1);
+		else
+			defaults[prop] = string(duk_get_string(ctx, -1));
+
+		duk_pop_2(ctx); // Remove values
+	}
+	duk_pop(ctx);
+
+	duk_push_pointer(ctx, running_region->game->getOrBuild(duk_to_string(ctx, 0), defaults));
+	duk_to_object(ctx, -1);
+	duk_eval_string(ctx, "GameObject.prototype");
+	duk_set_prototype(ctx, -2);
+
+	return 1;
+}
+
+int GO_find(duk_context *ctx) {
+	duk_push_pointer(ctx, running_region->game->getObject(duk_to_string(ctx, 0)));
+	duk_to_object(ctx, -1);
+	duk_eval_string(ctx, "GameObject.prototype");
+	duk_set_prototype(ctx, -2);
+
+	return 1;
 }
 
 int GO_fetch(duk_context *ctx) {
+	GameObject *obj = duk_get_this(ctx);
+	obj->fetch();
+
 	return 0;
 }
 
 int GO_set(duk_context *ctx) {
+	GameObject *obj = duk_get_this(ctx);
+	
+	std::string prop(duk_to_string(ctx, 0));
+	if (isInt(prop))
+		obj->set(prop, Json::Value(duk_get_int(ctx, 1)));
+	else
+		obj->set(prop, Json::Value(duk_get_string(ctx, 1)));
+
 	return 0;
 }
 
 int GO_get(duk_context *ctx) {
-	return 0;
+	GameObject *obj = duk_get_this(ctx);
+
+	std::string prop(duk_to_string(ctx, 0));
+	if (prop == "level")
+		duk_push_int(ctx, obj->level);
+	else if (prop == "health")
+		duk_push_int(ctx, obj->health);
+	else if (prop == "max_health")
+		duk_push_int(ctx, obj->maxhealth);
+	else
+		duk_push_string(ctx, obj->get(prop).asCString());
+
+	return 1;
 }
 
 int GO_viewInfo(duk_context *ctx) {
-	duk_push_this(ctx);
-	duk_dereference(ctx, -1);
+	GameObject *obj = duk_get_this(ctx);
 
-	GameObject *obj = (GameObject *)duk_to_pointer(ctx, -1);
+	std::string title(obj->name);
 
-	obj->infoPage(obj->name);
+	int nargs = duk_get_top(ctx);
+	if (nargs >= 1) title = string(duk_to_string(ctx, 0));
+
+	obj->infoPage(title);
+
+	return 0;
+}
+
+void JSRegion::move(const string &next) {
+	game->setRegion(next);
+	isComplete = true;
+};
+
+int JS_move(duk_context *ctx) {
+	running_region->move(string(duk_to_string(ctx, 0)));
+	return 0;
+}
+
+int JS_depend(duk_context *ctx) {
+	int nargs = duk_get_top(ctx);
+	for (int i = 0; i < nargs; i ++) {
+		// Pop all arguments and use them
+		string dep = duk_to_string(ctx, i);
+		running_region->game->addDependency(dep);
+	}
 
 	return 0;
 }
@@ -157,29 +235,34 @@ int GO_viewInfo(duk_context *ctx) {
 void JSRegion::pre_run() {
 	running_region = this;
 
+	// Define global functions
+	DEF_FUN("move", JS_move, 1);
+	DEF_FUN("depend", JS_depend, DUK_VARARGS);
+
 	// Create GameObject prototype
 	duk_push_global_object(ctx);             // Save for later
-	duk_get_prop_string(ctx, -1, "Duktape"); // Get Duktape
-	duk_get_prop_string(ctx, -1, "Pointer"); // Get Duktape.Pointer
-	duk_get_prop_string(ctx, -1, "prototype");
+	duk_eval_string(ctx, "Duktape.Pointer.prototype");
 	duk_enum(ctx, -1, DUK_ENUM_INCLUDE_NONENUMERABLE); // Enumerate prototype
 
 	duk_push_global_object(ctx);             // Save for later
-	duk_idx_t new_proto = duk_push_object(ctx);
-	while (duk_next(ctx, -3, 1)) {           // for (key in Duktape.Pointer.prototype)
+	duk_idx_t GO       = duk_push_c_function(ctx, GO_create, 2);
+	duk_idx_t GO_proto = duk_push_object(ctx);
+	while (duk_next(ctx, -4, 1)) {           // for (key in Duktape.Pointer.prototype)
 		duk_put_prop(ctx, -3);                //    new_proto[key] = Duktape.Pointer.prototype[key]
 	}
-	DEF_OBJ_FUN(new_proto, "fetch", GO_fetch,    DUK_VARARGS);
-	DEF_OBJ_FUN(new_proto, "get",   GO_get,      DUK_VARARGS);
-	DEF_OBJ_FUN(new_proto, "set",   GO_set,      DUK_VARARGS);
-	DEF_OBJ_FUN(new_proto, "info",  GO_viewInfo, DUK_VARARGS);
+	DEF_OBJ_FUN(GO,       "find",  GO_find,     1);
+	DEF_OBJ_FUN(GO_proto, "fetch", GO_fetch,    DUK_VARARGS);
+	DEF_OBJ_FUN(GO_proto, "get",   GO_get,      1);
+	DEF_OBJ_FUN(GO_proto, "set",   GO_set,      2);
+	DEF_OBJ_FUN(GO_proto, "info",  GO_viewInfo, DUK_VARARGS);
+	duk_put_prop_string(ctx, -2, "prototype");  // Define GameObject.prototype
 	duk_put_prop_string(ctx, -2, "GameObject"); // Define it globally
-	duk_pop_n(ctx, 5);                          // Pop back to global context
+	duk_pop_n(ctx, 3);                          // Pop back to global context
 
 	// Current stack: |...|global
 	duk_push_pointer(ctx, game->getPlayer());
 	duk_to_object(ctx, -1);
-	duk_get_prop_string(ctx, -2, "GameObject");
+	duk_eval_string(ctx, "GameObject.prototype");
 	duk_set_prototype(ctx, -2);
 	// Define it globally
 	duk_put_prop_string(ctx, -2, "player");

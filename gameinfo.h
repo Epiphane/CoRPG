@@ -16,7 +16,9 @@ public:
 	std::string name, region;
 	int health, maxhealth, level;
 
+	GameObject(Json::Value info) { init(info); }
 	GameObject(std::string name, std::string region) : name(name), region(region) { properties.clear(); };
+	void init(Json::Value info);
 	
 	void sync() { save(); fetch(); }
 	void fetch();

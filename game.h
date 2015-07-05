@@ -27,7 +27,7 @@ public:
 
 	GameObject *getPlayer() { return &player; }
 	GameObject *getObject(const std::string &name);
-	GameObject *newObject(const std::string &name);
+	GameObject *getOrBuild(const std::string &name, Json::Value _default);
 
 	virtual void setRegion(const std::string &_r) { region = _r; }
 	std::string getRegion() { return region; }

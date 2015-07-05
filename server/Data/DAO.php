@@ -11,6 +11,7 @@ require_once(__DIR__ . "/DB.php");
 require_once(__DIR__ . "/Model.php");
 require_once(__DIR__ . "/Request.php");
 require_once(__DIR__ . "/Filter.php");
+require_once(__DIR__ . "/InFilter.php");
 
 class DAO
 {
@@ -58,9 +59,18 @@ class DAO
 		if (count($request->Filter) > 0) {
 			$qFilters = [];
 			foreach ($request->Filter as $filter) {
-				$qFilters[] = $filter->property . " " . $filter->comparator . " ?";
-				$values[] = &$filter->value;
-				$types[] = $this->colTypes[$filter->property];
+				if ($filter instanceof InFilter) {
+					$qFilters[] = $filter->property . " " . $filter->comparator . " (" . join(", ", array_fill(0, count($filter->value), "?")) . ")";
+					for ($i = 0; $i < count($filter->value); $i ++) {
+						$values[] = &$filter->value[$i];
+						$types[] = $this->colTypes[$filter->property];
+					}
+				}
+				else {
+					$qFilters[] = $filter->property . " " . $filter->comparator . " ?";
+					$values[] = &$filter->value;
+					$types[] = $this->colTypes[$filter->property];
+				}
 			}
 
 			$query .= " WHERE " . join(" AND ", $qFilters);

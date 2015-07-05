@@ -40,8 +40,6 @@ void Game::play() {
 
 		current_region.run();
 		if (current_region.error()) break;
-
-		current_region = JSRegion(region, this);
 	}
 }
 
@@ -63,9 +61,24 @@ bool Game::pause() {
 void Game::new_game() {}
 
 GameObject *Game::getObject(const std::string &name) {
-	return NULL;
+	Json::Value info = Curl::GET(region + "/" + name, deps);
+	if (info.isMember("name")) {
+		return new GameObject(info);
+	}
+	else { // Not found!
+		return NULL;
+	}
 }
 
-GameObject *Game::newObject(const std::string &name) {
-	return NULL;
+GameObject *Game::getOrBuild(const string &name, Json::Value _default) {
+	GameObject *found = getObject(name);
+	if (found) return found;
+
+	// Create new object
+	Json::Value object;
+	object["name"] = name;
+	object["region"] = region;
+	object["properties"] = _default;
+
+	return new GameObject(object);
 }

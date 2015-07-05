@@ -7,14 +7,26 @@
 
 using namespace std;
 
-void GameObject::fetch() {
-	Json::Value info = Curl::GET(region + "/" + name);
+void GameObject::init(Json::Value info) {
+	name = info["name"].asString();
+	region = info["region"].asString();
 	
 	properties = info["properties"];
 	
-	level     = properties["level"].asInt();
-	health    = properties["health"].asInt();
-	maxhealth = properties["max_health"].asInt();
+	level = health = maxhealth = 0;
+	
+	if (properties.isMember("level"))
+		level     = properties["level"].asInt();
+	if (properties.isMember("health"))
+		health    = properties["health"].asInt();
+	if (properties.isMember("max_health"))
+		maxhealth = properties["max_health"].asInt();
+}
+
+void GameObject::fetch() {
+	Json::Value info = Curl::GET(region + "/" + name);
+	
+	init(info);
 }
 
 void GameObject::save() {

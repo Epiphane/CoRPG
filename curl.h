@@ -10,8 +10,7 @@ const std::string API_BASE = "http://thomassteinke.com/CoRPG/";
 
 namespace Curl {
 	Json::Value GET(std::string url);
-//	GameObject *GET(std::string name);
-	GameObject *GET(std::string name, std::vector<std::string> dependencies);
+	Json::Value GET(std::string name, std::vector<std::string> dependencies);
 	void POST      (GameObject *newObject);
 	void PUT       (GameObject *object);
 };
