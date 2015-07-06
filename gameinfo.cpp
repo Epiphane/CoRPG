@@ -10,6 +10,10 @@ using namespace std;
 void GameObject::init(Json::Value info) {
 	name = info["name"].asString();
 	region = info["region"].asString();
+	if (info.isMember("isNew"))
+		isNew = info["isNew"].asBool();
+	else
+		isNew = false; // Assume anything from server isn't new
 	
 	properties = info["properties"];
 	
@@ -21,6 +25,10 @@ void GameObject::init(Json::Value info) {
 		health    = properties["health"].asInt();
 	if (properties.isMember("max_health"))
 		maxhealth = properties["max_health"].asInt();
+
+	properties.removeMember("level");
+	properties.removeMember("health");
+	properties.removeMember("max_health");
 }
 
 void GameObject::fetch() {
@@ -38,17 +46,27 @@ Json::Value GameObject::get(std::string prop) {
 		return name;
 	else if (prop == "region")
 		return region;
+	else if (prop == "health")
+		return health;
+	else if (prop == "max_health")
+		return maxhealth;
+	else if (prop == "level")
+		return level;
 
 	return properties[prop];
 }
 
 void GameObject::set(std::string prop, Json::Value val) {
-	if (prop == "health")
+	if (prop == "name")
 		return;
 	else if (prop == "region")
 		return;
-
-	properties[prop] = val;
+	else if (prop == "health")
+		health = val.asInt();
+	else if (prop == "level")
+		return;
+	else
+		properties[prop] = val;
 }
 
 void GameObject::infoPage(string title) {
@@ -61,6 +79,8 @@ void GameObject::infoPage(string title) {
 	page.println();
 
 	page.printlnleft("Name: %s", name.c_str());
+	page.printlnleft("Level: %d", level);
+	page.printlnleft("Health: %d / %d", health, maxhealth);
 
 	Json::Value::Members keys = properties.getMemberNames();
 	Json::Value::Members::iterator it = keys.begin();

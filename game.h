@@ -11,7 +11,6 @@
 class Game {
 private:
 	GameObject player;
-	std::unordered_map<std::string, GameObject *> objects;
 	std::vector<std::string> deps;
 
 	std::string region;
@@ -20,7 +19,7 @@ private:
 
 	void new_game();
 
-	Game() : player("player", "global"), isComplete(false) { objects.clear(); };
+	Game() : player("player", "global"), isComplete(false) {};
 
 public:
 	static Game *instance();

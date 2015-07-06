@@ -15,6 +15,7 @@ private:
 public:
 	std::string name, region;
 	int health, maxhealth, level;
+	bool isNew;
 
 	GameObject(Json::Value info) { init(info); }
 	GameObject(std::string name, std::string region) : name(name), region(region) { properties.clear(); };

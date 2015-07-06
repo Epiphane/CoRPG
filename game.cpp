@@ -76,8 +76,9 @@ GameObject *Game::getOrBuild(const string &name, Json::Value _default) {
 
 	// Create new object
 	Json::Value object;
-	object["name"] = name;
-	object["region"] = region;
+	object["name"]       = name;
+	object["region"]     = region;
+	object["isNew"]      = true;
 	object["properties"] = _default;
 
 	return new GameObject(object);

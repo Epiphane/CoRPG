@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <ncurses.h>
 
 #include "game.h"
@@ -49,6 +50,26 @@ int JS_setcursor(duk_context *ctx) {
 	return 0;
 }
 
+int JS_modsearch(duk_context *ctx) {
+	string path = "world/" + string(duk_get_string(ctx, 0));
+	string file;
+	ifstream module(path, std::ios::in | std::ios::binary);
+	if (module) {
+		module.seekg(0, std::ios::end);
+		file.resize(module.tellg());
+    	module.seekg(0, std::ios::beg);
+    	module.read(&file[0], file.size());
+    	module.close();
+	}
+	else {
+		file = "exports.error = 'File " + path +  " not found';";
+	}
+	
+	duk_push_string(ctx, file.c_str());
+
+	return 1;
+}
+
 JSScript::JSScript(const std::string &filename) : isComplete(false) {
 	ctx = duk_create_heap_default();
 	if (filename != "")
@@ -90,7 +111,8 @@ void JSScript::printError(const string &message) {
 #define DEF_OBJ_FUN(index, name, fundef, nargs) duk_push_c_function(ctx, fundef, nargs);\
 	duk_put_prop_string(ctx, index, name);
 #define SAFE_PCALL(call, methodName) if (call) {\
-	printError("Script execution failed [" + string(methodName) + "]: " + string(duk_to_string(ctx, -1)));\
+	duk_get_prop_string(ctx, -1, "lineNumber");\
+	printError("Script execution failed [" + string(methodName) + ":" + duk_to_string(ctx, -1) + "]: " + duk_to_string(ctx, -2));\
 	duk_destroy_heap(ctx);\
 	ctx = NULL;\
 	return;\
@@ -106,6 +128,12 @@ void JSScript::run() {
 	DEF_FUN("print",   JS_print,      DUK_VARARGS);
 	DEF_FUN("println", JS_println,    DUK_VARARGS);
 	DEF_FUN("cursor",  JS_setcursor,  2);
+
+	duk_push_global_object(ctx);
+	duk_get_prop_string(ctx, -1, "Duktape");
+	duk_push_c_function(ctx, JS_modsearch, 1);
+	duk_put_prop_string(ctx, -2, "modSearch");
+	duk_pop_2(ctx);
 
 	pre_run();
 
