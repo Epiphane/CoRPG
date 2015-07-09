@@ -1,5 +1,6 @@
 #include <iostream>
 #include <curl/curl.h>
+#include <string.h>
 /* Changing directories */
 #include <dirent.h>
 #include <unistd.h>

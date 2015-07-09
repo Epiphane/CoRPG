@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include "curl.h"
 #include "gameinfo.h"
@@ -98,8 +99,9 @@ void GameObject::infoPage(string title) {
 	while (it != keys.end()) {
 		Json::Value value    = get(*it);
 		Json::ValueType type = value.type();
-		if (type == Json::intValue)
-			page.printlnleft("%s: %s", it->c_str(), to_string(value.asInt()).c_str());
+		if (type == Json::intValue) {
+			page.printlnleft("%s: %d", it->c_str(), value.asInt());
+		}
 		else
 			page.printlnleft("%s: %s", it->c_str(), value.asCString());
 
