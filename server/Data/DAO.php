@@ -90,4 +90,30 @@ class DAO
 			
 		return $objects;
 	}
+
+	public function update($model, $attrs) {
+		$query = "UPDATE " . $this->tableName . " SET ";
+
+		foreach ($attrs as $column => $value) {
+			$sets[] = $column . " = ?";
+			$values[] = &$attrs[$column];
+			$types[] = $this->colTypes[$column];;
+
+			$model->$column = $value;
+		}
+
+		$pKey = $model::$pKey ?: $model::$const_columns[0];
+		$query .= join(", ", $sets) . " WHERE " . $pKey . " = ?";
+		$values[] = &$model->$pKey;
+		$types[] = $this->colTypes[$pKey];
+
+		$q = $this->connection->prepare($query);
+		call_user_func_array([$q, "bind_param"], array_merge([implode($types)], $values));
+
+		$result = $q->execute();
+		return [
+			"success" => $result,
+			"message" => $q->error
+		];
+	}
 }

@@ -198,6 +198,28 @@ int GO_fetch(duk_context *ctx) {
 	return 0;
 }
 
+int GO_save(duk_context *ctx) {
+	GameObject *obj = duk_get_this(ctx);
+	obj->save();
+
+	return 0;
+}
+
+int GO_damage(duk_context *ctx) {
+	GameObject *fighter = duk_get_this(ctx);
+	duk_get_prototype(ctx, 0); // Get this.__proto__
+	duk_get_prop_string(ctx, -1, "valueOf");
+	duk_dup(ctx, 0); // Put object on top of stack
+	duk_call_method(ctx, 0);
+	GameObject *victim = (GameObject *)duk_get_pointer(ctx, -1);
+	duk_pop_2(ctx); // Pop victim.__proto__ and result
+	
+	// Do the damage
+	fighter->damage(victim, duk_get_int(ctx, 1));
+
+	return 0;
+}
+
 int GO_set(duk_context *ctx) {
 	GameObject *obj = duk_get_this(ctx);
 	
@@ -214,14 +236,11 @@ int GO_get(duk_context *ctx) {
 	GameObject *obj = duk_get_this(ctx);
 
 	std::string prop(duk_to_string(ctx, 0));
-	if (prop == "level")
-		duk_push_int(ctx, obj->level);
-	else if (prop == "health")
-		duk_push_int(ctx, obj->health);
-	else if (prop == "max_health")
-		duk_push_int(ctx, obj->maxhealth);
+	Json::Value val = obj->get(prop);
+	if (isInt(prop))
+		duk_push_number(ctx, val.asInt());
 	else
-		duk_push_string(ctx, obj->get(prop).asCString());
+		duk_push_string(ctx, val.asCString());
 
 	return 1;
 }
@@ -278,10 +297,11 @@ void JSRegion::pre_run() {
 	while (duk_next(ctx, -4, 1)) {           // for (key in Duktape.Pointer.prototype)
 		duk_put_prop(ctx, -3);                //    new_proto[key] = Duktape.Pointer.prototype[key]
 	}
-	DEF_OBJ_FUN(GO,       "find",  GO_find,     1);
-	DEF_OBJ_FUN(GO_proto, "fetch", GO_fetch,    DUK_VARARGS);
+	DEF_OBJ_FUN(GO_proto, "fetch", GO_fetch,    0);
+	DEF_OBJ_FUN(GO_proto, "sync",  GO_save,     0);
 	DEF_OBJ_FUN(GO_proto, "get",   GO_get,      1);
 	DEF_OBJ_FUN(GO_proto, "set",   GO_set,      2);
+	DEF_OBJ_FUN(GO_proto, "damage",GO_damage,   2);
 	DEF_OBJ_FUN(GO_proto, "info",  GO_viewInfo, DUK_VARARGS);
 	duk_put_prop_string(ctx, -2, "prototype");  // Define GameObject.prototype
 	duk_put_prop_string(ctx, -2, "GameObject"); // Define it globally

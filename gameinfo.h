@@ -9,23 +9,21 @@
 
 /* File saving */
 class GameObject {
-private:
-	Json::Value properties;
-
 public:
+	Json::Value state;
 	std::string name, region;
-	int health, maxhealth, level;
-	bool isNew;
 
 	GameObject(Json::Value info) { init(info); }
-	GameObject(std::string name, std::string region) : name(name), region(region) { properties.clear(); };
+	GameObject(std::string name, std::string region) : name(name), region(region) {};
 	void init(Json::Value info);
 	
-	void sync() { save(); fetch(); }
 	void fetch();
 	void save();
 	Json::Value get(std::string val);
 	void set(std::string prop, Json::Value val);
+
+	void act(GameObject *other, Json::Value action);
+	void damage(GameObject *other, int damage);
 
 	virtual void infoPage(std::string title);
 };

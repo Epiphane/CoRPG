@@ -10,25 +10,8 @@ using namespace std;
 void GameObject::init(Json::Value info) {
 	name = info["name"].asString();
 	region = info["region"].asString();
-	if (info.isMember("isNew"))
-		isNew = info["isNew"].asBool();
-	else
-		isNew = false; // Assume anything from server isn't new
-	
-	properties = info["properties"];
-	
-	level = health = maxhealth = 0;
-	
-	if (properties.isMember("level"))
-		level     = properties["level"].asInt();
-	if (properties.isMember("health"))
-		health    = properties["health"].asInt();
-	if (properties.isMember("max_health"))
-		maxhealth = properties["max_health"].asInt();
 
-	properties.removeMember("level");
-	properties.removeMember("health");
-	properties.removeMember("max_health");
+	state = info;
 }
 
 void GameObject::fetch() {
@@ -38,59 +21,87 @@ void GameObject::fetch() {
 }
 
 void GameObject::save() {
-
+	Json::Value result = Curl::PUT(name, region, state);
+	
+	init(result);
 }
 
 Json::Value GameObject::get(std::string prop) {
-	if (prop == "name")
-		return name;
-	else if (prop == "region")
-		return region;
-	else if (prop == "health")
-		return health;
-	else if (prop == "max_health")
-		return maxhealth;
-	else if (prop == "level")
-		return level;
+	if (prop == "name" || prop == "region")
+		return state[prop];
 
-	return properties[prop];
+	return state["properties"][prop];
+}
+
+void GameObject::act(GameObject *other, Json::Value action) {
+	Json::Value data;
+	Json::Value vSelf, vOther;
+	vSelf["name"] = name;
+	vSelf["region"] = region;
+	data["self"] = vSelf;
+	data["action"] = action;
+	if (other) {
+		vOther["name"] = other->name;
+		vOther["region"] = other->region;	
+
+		data["other"] = vOther;
+	}
+
+	Json::Value result = Curl::POST(data);
+
+	if (result.isMember("error")) {
+		Window::printMessage("Server error", result["error"].asCString());
+		UI::getchar();
+	}
+	else {
+		init(result["self"]);
+
+		if (other)
+			other->init(result["other"]);
+	}
 }
 
 void GameObject::set(std::string prop, Json::Value val) {
-	if (prop == "name")
-		return;
-	else if (prop == "region")
-		return;
-	else if (prop == "health")
-		health = val.asInt();
-	else if (prop == "level")
-		return;
-	else
-		properties[prop] = val;
+	Json::Value action;
+
+	action["method"] = "set";
+	action["property"] = prop;
+	action["value"] = val;
+
+	act(NULL, action);
+}
+
+void GameObject::damage(GameObject *other, int amt) {
+	Json::Value action;
+
+	action["method"] = "attack";
+	action["damage"] = amt;
+
+	act(other, action);
 }
 
 void GameObject::infoPage(string title) {
 	UI::clear();
 
-	Window page(30, 11 + properties.size());
+	Window page(30, 11 + state["properties"].size());
 
 	page.printlncenter(title.c_str());
 	page.println();
 	page.println();
 
-	page.printlnleft("Name: %s", name.c_str());
-	page.printlnleft("Level: %d", level);
-	page.printlnleft("Health: %d / %d", health, maxhealth);
+	page.printlnleft("Name: %s", get("name").asCString());
+	page.printlnleft("Level: %d", get("level").asInt());
+	page.printlnleft("Health: %d / %d", get("health").asInt(), get("max_health").asInt());
 
-	Json::Value::Members keys = properties.getMemberNames();
+	Json::Value::Members keys = state["properties"].getMemberNames();
 	Json::Value::Members::iterator it = keys.begin();
 	while (it != keys.end()) {
-		Json::Value value    = properties[*it];
+		Json::Value value    = get(*it);
 		Json::ValueType type = value.type();
 		if (type == Json::intValue)
-			page.printlnleft("%s: %s", it->c_str(), std::to_string(properties[*it].asInt()).c_str());
+			page.printlnleft("%s: %s", it->c_str(), to_string(value.asInt()).c_str());
 		else
-			page.printlnleft("%s: %s", it->c_str(), properties[*it].asCString());
+			page.printlnleft("%s: %s", it->c_str(), value.asCString());
 
 		it ++;
 	}

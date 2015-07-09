@@ -11,7 +11,9 @@ use \Data\DAO;
 class Model
 {
 	public static $tableName;
+	public static $pKey = null;
 	public static $columns = [];
+	public static $const_columns = [];
 
 	public static function build($assoc) {
 		$m = get_called_class();
@@ -26,6 +28,16 @@ class Model
 
 	public function read() {
 		return $this;
+	}
+
+	public function update($attrs) {
+		foreach(self::$const_columns as $key) {
+			unset($attrs[$key]);
+		}
+
+		$dao = new \Data\DAO(get_called_class());
+
+		return $dao->update($this, $attrs);
 	}
 
 	public static function find($request) {

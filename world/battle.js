@@ -37,8 +37,6 @@ Battle.prototype.renderP1Bar = function(max, current) {
 	println("\\" + bars.top);
 };
 
-thing = ""
-
 Battle.prototype.render = function() {
 	window(80, 20);
 
@@ -55,9 +53,7 @@ Battle.prototype.render = function() {
 };
 
 Battle.prototype.update = function(input) {
-	thing = input;
 	if (input == " ") {
-		thing = this.p2.get("health") - 10
-		this.p2.set("health", this.p2.get("health") - 10);
+		this.p1.damage(this.p2, 10);
 	}
 };

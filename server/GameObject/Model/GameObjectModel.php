@@ -24,6 +24,10 @@ class GameObjectModel extends \Data\Model
 		"max_health" => "int"
 	];
 
+	public static $const_columns = [
+		"object_id", "name", "region"
+	];
+
 	public $object_id;
 	public $name;
 	public $region;
@@ -31,6 +35,18 @@ class GameObjectModel extends \Data\Model
 	public $health;
 	public $max_health;
 	public $properties;
+
+	public static function findByNameRegionGame($name, $regions = array(), $game = null) {
+		$request = new \Data\Request();
+
+		$request->Filter[] = new \Data\Filter("name", $name);
+		if (is_array($regions) && count($regions) > 0)
+			$request->Filter[] = new \Data\InFilter("region", $regions);
+		if ($game)
+			$request->Filter[] = new \Data\Filter("game", $game);
+
+		return self::findOne($request);
+	}
 
 	public function read() {
 		$properties = array();
