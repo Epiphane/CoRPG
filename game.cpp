@@ -34,6 +34,7 @@ void Game::save() {
 void Game::play() {
 	load();
 
+	isComplete = false;
 	while (!isComplete) {
 		JSRegion current_region = JSRegion("world/" + region + ".js", this);
 		if (current_region.error()) break;

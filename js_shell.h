@@ -5,7 +5,7 @@
 
 class JSScript {
 public:
-	JSScript() : ctx(NULL) {};
+	JSScript() : ctx(NULL), isComplete(true) {};
 	JSScript (const std::string& filename);
 	void init(const std::string& filename);
 	~JSScript();

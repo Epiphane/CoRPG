@@ -126,6 +126,7 @@ void Window::printMessage(std::string title, std::string message) {
 	if (title.size() > message.size()) {
 		len = title.size();
 	}
+	if (len < 28) len = 28;
 
 	Window messageWindow(len + 4, 6, 0, 0);
 

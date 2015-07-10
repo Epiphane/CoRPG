@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "gameinfo.h"
+#include "js_shell.h"
 #include "json/json.h"
 
 class Game {
@@ -19,7 +20,7 @@ private:
 
 	void new_game();
 
-	Game() : player("player", "global"), isComplete(false) {};
+	Game() : player("player", "global"), isComplete(true) {};
 
 public:
 	static Game *instance();

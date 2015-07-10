@@ -342,8 +342,10 @@ void JSRegion::post_run() {
 		in[0] = UI::getchar();
 		in[1] = 0; // Make a "string"
 
-		if (in[0] == 27 && !game->pause())
-			isComplete = true;
+		if (in[0] == 27) {
+			if (!game->pause())
+				isComplete = true;
+		}
 		else {
 			if (in[0] == 127) in[0] = '\b';
 

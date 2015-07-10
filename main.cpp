@@ -1,6 +1,7 @@
 #include <iostream>
 #include <curl/curl.h>
 #include <string.h>
+#include <signal.h>
 /* Changing directories */
 #include <dirent.h>
 #include <unistd.h>
@@ -18,6 +19,18 @@ using namespace std;
 
 int chdir_to_executable();
 
+bool game_playing = false;
+void handle_signal(int s) {
+	if (game_playing) {
+		Window::printMessage("Signal " + to_string(s), "Game process interrupted");
+		UI::getchar();
+	}
+
+	UI::cleanup();
+
+	exit(1);
+}
+
 int main() {
 	if (chdir_to_executable() != SUCCESS) {
 		return 1;
@@ -29,6 +42,8 @@ int main() {
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
+	signal(SIGINT, handle_signal);
+
 	char choice = 0;
 	while (choice != 'q') {
 		UI::clear();
@@ -37,6 +52,7 @@ int main() {
 		
 		if (choice == ' ') {
 			// Play game!
+			game_playing = true;
 			Game::instance()->play();
 
 			break;
