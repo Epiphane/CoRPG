@@ -9,6 +9,8 @@
 #include "game.h"
 #include "ui.h"
 
+#define SAVE_FILE "._gameinfo"
+
 using namespace std;
 
 /* Game info */
@@ -26,9 +28,19 @@ void Game::load() {
 	player.infoPage("Player stats");
 
 	region = "tavern";
+
+	ifstream infile(SAVE_FILE);
+	if (infile.is_open()) {
+		infile >> region;
+	}
 }
 
 void Game::save() {
+	ofstream outfile(SAVE_FILE);
+
+	if (outfile.is_open()) {
+		outfile << region << endl;;
+	}
 }
 
 void Game::play() {

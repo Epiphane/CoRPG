@@ -60,6 +60,12 @@ class ActionController
 		$this->check($action["damage"], "action.damage");
 
 		$newHealth = $this->victim->health - $action["damage"];
+		if ($this->victim->health > 0 && $newHealth <= 0) {
+			$this->kill_victim();
+		}
+
+		if ($newHealth < 0) $newHealth = 0;
+
 		$result = $this->victim->update([
 			"health" => $newHealth
 		]);
@@ -67,5 +73,30 @@ class ActionController
 		return [
 			"success" => $result
 		];
+	}
+
+	private function kill_victim() {
+		$experience = $this->victim->level;
+
+		$currentExperience = $this->actor->experience;
+		$currentLevel = $this->actor->level;		
+
+
+		$newExperience = $currentExperience + $experience;
+		$experienceNeeded = $currentLevel * 10;
+		while ($newExperience >= $experienceNeeded) {
+			$newExperience -= $experienceNeeded;
+
+			$currentLevel ++;			
+			$experienceNeeded = $currentLevel * 10;
+		}
+
+		$res = $this->actor->update([
+			"level" => $currentLevel,
+			"experience" => $newExperience
+		]);
+
+		if (!$res)
+			throw new \Exception("Actor update failed");
 	}
 }

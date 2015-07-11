@@ -28,6 +28,8 @@ void GameObject::save() {
 }
 
 Json::Value GameObject::get(std::string prop) {
+	if (prop == "name" && !state["properties"]["nickname"].isNull())
+		return state["properties"]["nickname"];
 	if (prop == "name" || prop == "region")
 		return state[prop];
 
@@ -51,7 +53,7 @@ void GameObject::act(GameObject *other, Json::Value action) {
 	Json::Value result = Curl::ACT(data);
 
 	if (result.isMember("error")) {
-		Window::printMessage("Server error", result["error"].asCString());
+		Window::printMessage("Server error", result["error"].toStyledString().c_str());
 		UI::getchar();
 	}
 	else {
@@ -98,8 +100,9 @@ void GameObject::infoPage(string title) {
 		if (type == Json::intValue) {
 			page.printlnleft("%s: %d", it->c_str(), value.asInt());
 		}
-		else
+		else if (type == Json::stringValue) {
 			page.printlnleft("%s: %s", it->c_str(), value.asCString());
+		}
 
 		it ++;
 	}

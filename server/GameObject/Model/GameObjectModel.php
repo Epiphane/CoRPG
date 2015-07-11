@@ -18,6 +18,7 @@ class GameObjectModel extends \Data\Model
 	public static $columns = [
 		"object_id" => "string",
 		"name" => "string",
+		"nickname" => "string",
 		"region" => "string",
 		"level" => "int",
 		"experience" => "int",
@@ -32,6 +33,7 @@ class GameObjectModel extends \Data\Model
 	public $object_id;
 	public $game = "weebly";
 	public $name;
+	public $nickname;
 	public $region;
 	public $level;
 	public $experience;
@@ -110,6 +112,8 @@ class GameObjectModel extends \Data\Model
 		}
 
 		$properties["level"] = $this->level;
+		$properties["nickname"] = $this->nickname;
+		$properties["experience"] = $this->experience;
 		$properties["health"] = $this->health;
 		$properties["max_health"] = $this->max_health;
 
@@ -122,6 +126,15 @@ class GameObjectModel extends \Data\Model
 
 	public function update($attrs) {
 		$myProps = array();
+
+		if ($attrs["name"]) {
+			$attrs["nickname"] = $attrs["name"];
+		}
+
+		// Don't update restricted stuff
+		foreach (self::$const_columns as $restricted) {
+			unset($attrs[$restricted]);
+		}
 
 		foreach ($attrs as $prop => $val) {
 			if (self::$columns[$prop]) {

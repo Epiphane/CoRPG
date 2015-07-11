@@ -23,6 +23,7 @@ bool game_playing = false;
 void handle_signal(int s) {
 	if (game_playing) {
 		Window::printMessage("Signal " + to_string(s), "Game process interrupted");
+		Game::instance()->save();
 		UI::getchar();
 	}
 

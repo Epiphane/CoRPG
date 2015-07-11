@@ -53,6 +53,6 @@ update = function(input) {
 		}
 	}
 	else {
-		move("tavern");
+		move("boss_create");
 	}
 }
