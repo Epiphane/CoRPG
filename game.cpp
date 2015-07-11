@@ -63,7 +63,7 @@ void Game::new_game() {}
 
 GameObject *Game::getObject(const std::string &name) {
 	Json::Value info = Curl::GET(region + "/" + name, deps);
-	if (info.isMember("name")) {
+	if (info.type() == Json::ValueType::objectValue && info.isMember("name")) {
 		return new GameObject(info);
 	}
 	else { // Not found!
@@ -82,5 +82,8 @@ GameObject *Game::getOrBuild(const string &name, Json::Value _default) {
 	object["isNew"]      = true;
 	object["properties"] = _default;
 
-	return new GameObject(object);
+	GameObject *newObj = new GameObject(object);
+	newObj->save();
+
+	return newObj;
 }

@@ -38,7 +38,10 @@ class DAO
 	}
 
 	public function build($model, $object) {
-		return $model::build($object);
+		$res = $model::build($object, false);
+		$res->_new = false;
+
+		return $res;
 	}
 
 	public function findOne($request) {
@@ -91,6 +94,32 @@ class DAO
 		return $objects;
 	}
 
+	public function create($model) {
+		$query = "INSERT INTO " . $this->tableName;
+
+		foreach ($this->colTypes as $column => $type) {
+			if ($model->$column !== null) {
+				$columns[] = $column;
+				$types[] = $type;
+				$values[] = &$model->$column;
+			}
+		}
+	
+		$query .= "(" . join(", ", $columns) . ")";
+		$query .= " VALUES (" . join(",", array_fill(0, count($values), "?")) . ")";
+		
+		$q = $this->connection->prepare($query);
+		call_user_func_array([$q, "bind_param"], array_merge([implode($types)], $values));
+
+		$result = $q->execute();
+		if ($result) {
+			return $model;
+		}
+		else {
+			return NULL;
+		}
+	}
+
 	public function update($model, $attrs) {
 		$query = "UPDATE " . $this->tableName . " SET ";
 
@@ -102,7 +131,7 @@ class DAO
 			$model->$column = $value;
 		}
 
-		$pKey = $model::$pKey ?: $model::$const_columns[0];
+		$pKey = $model::getPrimaryKey($model);
 		$query .= join(", ", $sets) . " WHERE " . $pKey . " = ?";
 		$values[] = &$model->$pKey;
 		$types[] = $this->colTypes[$pKey];

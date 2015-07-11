@@ -11,8 +11,11 @@ const std::string API_BASE = "http://thomassteinke.com/CoRPG/";
 namespace Curl {
 	Json::Value  GET(std::string url);
 	Json::Value  GET(std::string name, std::vector<std::string> dependencies);
-	Json::Value POST(Json::Value action);
-	Json::Value  PUT(std::string name, std::string region, Json::Value state);
+	Json::Value  ACT(Json::Value action);
+	Json::Value POST(std::string url, Json::Value object);
+	Json::Value  PUT(std::string name, std::string region, Json::Value object);
+
+	double getLatency();
 };
 
 #endif /* CURL_H */

@@ -2,9 +2,11 @@
 #include <fstream>
 #include <ncurses.h>
 
+#include "benchmark.h"
 #include "game.h"
 #include "js_shell.h"
 #include "ui.h"
+#include "curl.h"
 
 using namespace std;
 
@@ -111,8 +113,9 @@ void JSScript::printError(const string &message) {
 #define DEF_OBJ_FUN(index, name, fundef, nargs) duk_push_c_function(ctx, fundef, nargs);\
 	duk_put_prop_string(ctx, index, name);
 #define SAFE_PCALL(call, methodName) if (call) {\
-	duk_get_prop_string(ctx, -1, "lineNumber");\
-	printError("Script execution failed [" + string(methodName) + ":" + duk_to_string(ctx, -1) + "]: " + duk_to_string(ctx, -2));\
+	duk_get_prop_string(ctx, -1, "fileName");\
+	duk_get_prop_string(ctx, -2, "lineNumber");\
+	printError("Script execution failed [" + string(duk_to_string(ctx, -2)) + ":" + duk_to_string(ctx, -1) + "]: " + duk_to_string(ctx, -3));\
 	duk_destroy_heap(ctx);\
 	ctx = NULL;\
 	return;\
@@ -152,6 +155,41 @@ inline GameObject *duk_get_this(duk_context *ctx) {
 	duk_call_method(ctx, 0);
 	GameObject *result = (GameObject *)duk_get_pointer(ctx, -1);
 	duk_pop_3(ctx); // Pop this, this.__proto__ and result
+
+	return result;
+}
+
+inline Json::Value duk_get_json(duk_context *ctx, duk_idx_t ind) {
+	Json::Value result;
+
+	// Get type of the current value
+	duk_int_t type = duk_get_type(ctx, ind);
+	switch (type) {
+	case DUK_TYPE_NUMBER:
+		result = duk_get_number(ctx, ind);
+		break;
+	case DUK_TYPE_BOOLEAN:
+		result = duk_get_boolean(ctx, ind);
+		break;
+	case DUK_TYPE_STRING:
+		result = Json::Value(duk_get_string(ctx, ind));
+		break;
+	case DUK_TYPE_OBJECT:
+		// Recursive case is fun case
+		duk_enum(ctx, ind, DUK_ENUM_OWN_PROPERTIES_ONLY);
+		while (duk_next(ctx, -1, 1)) {
+			string prop = duk_get_string(ctx, -2);
+			Json::Value val = duk_get_json(ctx, -1);
+
+			result[prop] = val;
+
+			duk_pop_2(ctx);
+		}
+		duk_pop(ctx);
+		break;
+	default:
+		break;
+	}
 
 	return result;
 }
@@ -220,14 +258,45 @@ int GO_damage(duk_context *ctx) {
 	return 0;
 }
 
+int GO_act(duk_context *ctx) {
+	GameObject *self = duk_get_this(ctx);
+	GameObject *other = NULL;
+
+	int nargs = duk_get_top(ctx);
+	if (nargs == 2) {
+		duk_get_prototype(ctx, 0); // Get other.__proto__
+		duk_get_prop_string(ctx, -1, "valueOf");
+		duk_dup(ctx, 0); // Put object on top of stack
+		duk_call_method(ctx, 0);
+		other = (GameObject *)duk_get_pointer(ctx, -1);
+		duk_pop_2(ctx); // Pop victim.__proto__ and result
+	}
+
+	Json::Value action = duk_get_json(ctx, nargs - 1);
+	
+	// Do the damage
+	self->act(other, action);
+
+	return 0;
+}
+
 int GO_set(duk_context *ctx) {
 	GameObject *obj = duk_get_this(ctx);
+
+	Json::Value upd;
+	if (duk_get_top(ctx) == 1) {
+		upd = duk_get_json(ctx, 0);
+	}
+	else {
+		std::string prop(duk_get_string(ctx, 0));
+		
+		if (isInt(prop))
+			upd[prop] = Json::Value(duk_get_int(ctx, 1));
+		else
+			upd[prop] = Json::Value(duk_get_string(ctx, 1));
+	}
 	
-	std::string prop(duk_to_string(ctx, 0));
-	if (isInt(prop))
-		obj->set(prop, Json::Value(duk_get_int(ctx, 1)));
-	else
-		obj->set(prop, Json::Value(duk_get_string(ctx, 1)));
+	obj->update(upd);
 
 	return 0;
 }
@@ -301,7 +370,10 @@ void JSRegion::pre_run() {
 	DEF_OBJ_FUN(GO_proto, "sync",  GO_save,     0);
 	DEF_OBJ_FUN(GO_proto, "get",   GO_get,      1);
 	DEF_OBJ_FUN(GO_proto, "set",   GO_set,      2);
+	DEF_OBJ_FUN(GO_proto, "set",   GO_set,      1);
 	DEF_OBJ_FUN(GO_proto, "damage",GO_damage,   2);
+	DEF_OBJ_FUN(GO_proto, "act",   GO_act,      1);
+	DEF_OBJ_FUN(GO_proto, "actOn", GO_act,      2);
 	DEF_OBJ_FUN(GO_proto, "info",  GO_viewInfo, DUK_VARARGS);
 	duk_put_prop_string(ctx, -2, "prototype");  // Define GameObject.prototype
 	duk_put_prop_string(ctx, -2, "GameObject"); // Define it globally
@@ -332,16 +404,19 @@ void JSRegion::post_run() {
 		UI::clear();
 		mvprintw(0, 0, ".-----------------------.");
 		mvprintw(1, 0, "| Press ESC to pause... |");
-		mvprintw(2, 0, "^-----------------------^");
+		mvprintw(2, 0, "|                       |");
+		mvprintw(3, 0, "| Latency: %.3fms      |", Curl::getLatency());
+		mvprintw(4, 0, "^-----------------------^");
 		duk_dup(ctx, -2); // Queue up render()
 		SAFE_PCALL(duk_pcall(ctx, 0), "render");
+	
 		duk_pop(ctx); // Discard return val
 		UI::refresh();			  
-	
+
 		char in[2];
 		in[0] = UI::getchar();
 		in[1] = 0; // Make a "string"
-
+	
 		if (in[0] == 27) {
 			if (!game->pause())
 				isComplete = true;

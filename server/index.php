@@ -47,8 +47,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 	
 		if ($obj)
 			sendResponse($obj->read());
-		else
-			sendResponse([]);
+		else {
+			header('Content-Type: application/json');
+			echo "{}";
+		}
 	}
 }
 else if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -78,6 +80,11 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			sendResponse($result);
 		}
 	}
+}
+else if ($_SERVER["REQUEST_METHOD"] == "PUT") {
+	$newObject = \GameObject\Model\GameObjectModel::build($params);
+
+	sendResponse($newObject->save());
 }
 
 ?>

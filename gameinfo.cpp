@@ -48,7 +48,7 @@ void GameObject::act(GameObject *other, Json::Value action) {
 		data["other"] = vOther;
 	}
 
-	Json::Value result = Curl::POST(data);
+	Json::Value result = Curl::ACT(data);
 
 	if (result.isMember("error")) {
 		Window::printMessage("Server error", result["error"].asCString());
@@ -62,14 +62,10 @@ void GameObject::act(GameObject *other, Json::Value action) {
 	}
 }
 
-void GameObject::set(std::string prop, Json::Value val) {
-	Json::Value action;
+void GameObject::update(Json::Value properties) {
+	properties["method"] = "set";
 
-	action["method"] = "set";
-	action["property"] = prop;
-	action["value"] = val;
-
-	act(NULL, action);
+	act(NULL, properties);
 }
 
 void GameObject::damage(GameObject *other, int amt) {

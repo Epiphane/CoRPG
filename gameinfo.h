@@ -20,7 +20,7 @@ public:
 	void fetch();
 	void save();
 	Json::Value get(std::string val);
-	void set(std::string prop, Json::Value val);
+	void update(Json::Value properties);
 
 	void act(GameObject *other, Json::Value action);
 	void damage(GameObject *other, int damage);

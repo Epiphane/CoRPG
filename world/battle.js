@@ -54,6 +54,9 @@ Battle.prototype.render = function() {
 
 Battle.prototype.update = function(input) {
 	if (input == " ") {
-		this.p1.damage(this.p2, 10);
+		this.p1.actOn(this.p2, {
+			method: "attack",
+			damage: 10
+		});
 	}
 };

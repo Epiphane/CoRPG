@@ -31,7 +31,9 @@ class ActionController
 		$method = $action["method"];
 
 		if (method_exists($this, $method)) {
+			unset($action["method"]);
 			try {
+				$this->check($this->actor, "actor");
 				return $this->$method($action);
 			}
 			catch (\Exception $e) {
@@ -47,6 +49,10 @@ class ActionController
 				"error" => "Method '" . $method . "' not found."
 			];
 		}
+	}
+
+	public function set($action) {
+		return $this->actor->update($action);
 	}
 
 	public function attack($action) {

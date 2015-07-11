@@ -15,6 +15,8 @@ class Model
 	public static $columns = [];
 	public static $const_columns = [];
 
+	public $_new = true;
+
 	public static function build($assoc) {
 		$m = get_called_class();
 		$model = new $m();
@@ -23,7 +25,38 @@ class Model
 			$model->$col = $val;
 		}
 
+		// Create primary key if not exists
+		$pKey = self::getPrimaryKey($m);
+		if (!$model->$pKey) {
+			$model->$pKey = $model->createPrimaryKey();
+		}
+
 		return $model;
+	}
+
+	public static function getPrimaryKey($m) {
+		$key = $m::$pKey ?: $m::$const_columns[0];
+		if (!$key) {
+			reset($m::$columns);
+			$key = key($m::$columns);
+		}
+		return $key;
+	}
+
+	public function createPrimaryKey() {
+		return mt_rand(1000000, 9999999);
+	}
+
+	public function save() {
+		$model = get_called_class();
+		$dao = new \Data\DAO($model);
+	
+		if ($this->_new) {
+			return $dao->create($this);
+		}
+		else {
+			return $dao->save($this, $model::$columns);
+		}
 	}
 
 	public function read() {
