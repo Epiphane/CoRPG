@@ -9,12 +9,25 @@ var boss = new GameObject("boss", {
 battle = new Battle(player, boss);
 
 render = function() {
-	battle.render();
+	battle.renderScene();
+
+	drawImage(1, -10, 'player.txt');
+	/*draw(1, -10, 
+		'         ______', 
+		'      .--      -', 
+		'     /          \\___', 
+		'     |          |', 
+		'     (           )', 
+		'      \\---------',
+		'     ----\\      \\',
+		'    /   / \\      \\');*/
+
+	battle.renderPlayers();
 };
 
 update = function(input) {
 	if (input == "t")
-		move("tavern");
+		move("home");
 	else
 		battle.update(input);
 

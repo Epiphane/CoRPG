@@ -27,7 +27,7 @@ void Game::load() {
 	player.fetch();
 	player.infoPage("Player stats");
 
-	region = "tavern";
+	region = "home";
 
 	ifstream infile(SAVE_FILE);
 	if (infile.is_open()) {

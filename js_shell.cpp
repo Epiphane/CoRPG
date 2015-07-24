@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <ncurses.h>
+#include <cstring>
 
 #include "benchmark.h"
 #include "game.h"
@@ -41,6 +42,54 @@ int JS_println(duk_context *ctx) {
 	JS_window.println();
 
 	return 0;
+}
+
+int JS_draw(duk_context *ctx) {
+	int base_x = duk_get_int(ctx, 0);
+	int y = duk_get_int(ctx, 1);
+	int line = 2;
+	int nargs = duk_get_top(ctx);
+
+	while (line < nargs) {
+		const char *message = duk_get_string(ctx, line);
+	
+		char *str = new char[strlen(message) + 1];
+		strcpy(str, message);
+
+		char *token = strtok(str, "\n");
+		while (token != NULL) {
+			int x = base_x;
+			while (token[0] != 0 && token[0] == ' ') {
+				token ++;
+				x ++;
+			}
+			
+			JS_window.setCursor(x, y++);
+			JS_window.printlnleft("%s", token);
+
+			token = strtok(NULL, "\n");
+		}
+
+		free(str);
+		line ++;
+	}
+
+	return 0;
+}
+
+int JS_drawImage(duk_context *ctx) {
+	string path = "world/" + string(duk_get_string(ctx, 2));
+	duk_pop(ctx);
+
+	string line;
+	ifstream input(path, std::ios::in);
+	if (input) {
+		while (getline(input, line)) {
+			duk_push_string(ctx, line.c_str());
+		}
+	}
+
+	return JS_draw(ctx);
 }
 
 int JS_setcursor(duk_context *ctx) {
@@ -127,10 +176,12 @@ void JSScript::run() {
 		return;
 	}
 
-	DEF_FUN("window",  JS_openWindow, DUK_VARARGS);
-	DEF_FUN("print",   JS_print,      DUK_VARARGS);
-	DEF_FUN("println", JS_println,    DUK_VARARGS);
-	DEF_FUN("cursor",  JS_setcursor,  2);
+	DEF_FUN("window",    JS_openWindow, DUK_VARARGS);
+	DEF_FUN("draw",      JS_draw,       DUK_VARARGS);
+	DEF_FUN("drawImage", JS_drawImage,  3);
+	DEF_FUN("print",     JS_print,      DUK_VARARGS);
+	DEF_FUN("println",   JS_println,    DUK_VARARGS);
+	DEF_FUN("cursor",    JS_setcursor,  2);
 
 	duk_push_global_object(ctx);
 	duk_get_prop_string(ctx, -1, "Duktape");
@@ -416,7 +467,7 @@ void JSRegion::post_run() {
 		char in[2];
 		in[0] = UI::getchar();
 		in[1] = 0; // Make a "string"
-	
+
 		if (in[0] == 27) {
 			if (!game->pause())
 				isComplete = true;

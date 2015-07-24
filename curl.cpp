@@ -1,9 +1,9 @@
 #include <iostream>
 #include <curl/curl.h>
 #include <cstring>
-#include <ctime>
 
 #include "curl.h"
+#include "ui.h"
 
 using namespace std;
 
@@ -41,6 +41,7 @@ size_t read_data(void *ptr, size_t size, size_t nmemb, void *userp) {
 }
 
 char CurlBuffer[2048];
+char CurlErrorBuf[2048];
 int CurlBufferNdx = 0;
 size_t write_data(void *buf, size_t size, size_t nmemb, void *userp) {
 	memcpy(&CurlBuffer[CurlBufferNdx], buf, size * nmemb);
@@ -51,12 +52,14 @@ size_t write_data(void *buf, size_t size, size_t nmemb, void *userp) {
 }
 
 inline Json::Value json_perform(CURL *handle, string url) {
-	clock_t begin = clock();
+	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, CurlErrorBuf);
 
 	Json::Value result;
 	CurlBufferNdx = 0;
 	if (curl_easy_perform(handle) != CURLE_OK) {
-		cerr << "Error sending request to " << url << endl;
+		Window::printMessage("Request error", CurlErrorBuf);
+		UI::getchar();
+		return result;
 	}
 	else {
 		Json::Reader *reader = new Json::Reader();
@@ -64,14 +67,13 @@ inline Json::Value json_perform(CURL *handle, string url) {
 	}
 
 	// Analytics
-	clock_t end = clock();
 	if (!initial_lat) {
-		latencies[pos] = double(end - begin) / CLOCKS_PER_SEC;
+		curl_easy_getinfo(handle, CURLINFO_TOTAL_TIME, &latencies[pos]);
 		pos = (pos + 1) % LAT_CALCS;
 	}
 	else {
 		// Fill array
-		latencies[0] = double(end - begin) / CLOCKS_PER_SEC;
+		curl_easy_getinfo(handle, CURLINFO_TOTAL_TIME, latencies);
 		for (int i = 1; i < LAT_CALCS; i ++)
 			latencies[i] = latencies[0];
 

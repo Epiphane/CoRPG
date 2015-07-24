@@ -7,23 +7,12 @@ var boss = new GameObject("boss", {
 });
 
 render = function() {
-	window(40, 10, -15, 0);
+	window(40, 10, 0, 0);
 
 	println("Hello, " + player.get("name") + "!")
 	println()
 
-	println("Boss name: " + boss.get("name"))
-	println()
-
 	println("Press t to go to town.")
-	println("Press b to fight the boss.")
-	println("Press i to see boss info.")
-
-	window(20, 10, 15, 0)
-	println(player.get("name"))
-	println()
-	println("Lvl " + player.get("level"))
-	println("HP: " + player.get("health"))
 };
 
 update = function(input) {
@@ -33,4 +22,4 @@ update = function(input) {
 		move("town");
 	else if (input == "b")
 		move("boss_room");
-}
+};
