@@ -8,6 +8,7 @@
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #endif
+#include <string>
 
 #include "ui.h"
 #include "game.h"
@@ -22,7 +23,7 @@ int chdir_to_executable();
 bool game_playing = false;
 void handle_signal(int s) {
 	if (game_playing) {
-		Window::printMessage("Signal " + to_string(s), "Game process interrupted");
+		Window::printMessage("Signal " + to_string((long long int)s), "Game process interrupted");
 		Game::instance()->save();
 		UI::getchar();
 	}

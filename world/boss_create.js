@@ -34,7 +34,8 @@ update = function(input) {
 	else {
 		boss.set({
 			name: boss_name.val,
-			health: boss_health.val
+			health: boss_health.val,
+			max_health: boss_health.val
 		});
 
 		move("tavern");
