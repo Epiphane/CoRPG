@@ -1,5 +1,8 @@
 depend("boss_room");
 
+var _moves = require('./moves.js').Moves;
+var Battle = require("./battle.js").Battle;
+
 var boss = new GameObject("boss", {
 	health: 2200,
 	max_health: 2200,

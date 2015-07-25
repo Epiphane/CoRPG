@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <cstring>
 
+#include "keys.h"
 #include "benchmark.h"
 #include "game.h"
 #include "js_shell.h"
@@ -464,21 +465,50 @@ void JSRegion::post_run() {
 		duk_pop(ctx); // Discard return val
 		UI::refresh();			  
 
-		char in[2];
-		in[0] = UI::getchar();
-		in[1] = 0; // Make a "string"
+		int ch = UI::getchar();
 
-		if (in[0] == 27) {
-			if (!game->pause())
-				isComplete = true;
+		bool should_update = true;
+			
+		duk_dup(ctx, -1); // Queue up update
+
+		if (ch == 27) {
+			ch = UI::getchar();
+			ch = UI::getchar();
+
+			if (ch == 27) {
+				should_update = false;
+
+				if (!game->pause())
+					isComplete = true;
+			}
+			else if (ch == K_LEFT) {
+				duk_push_string(ctx, "left");
+			}
+			else if (ch == K_UP) {
+				duk_push_string(ctx, "up");
+			}
+			else if (ch == K_DOWN) {
+				duk_push_string(ctx, "down");
+			}
+			else if (ch == K_RIGHT) {
+				duk_push_string(ctx, "right");
+			}
+			else {
+				should_update = false;
+			}
 		}
 		else {
-			if (in[0] == 127) in[0] = '\b';
+			if (ch == 127) ch = '\b';
+			char in[2];
+			in[0] = ch;
+			in[1] = 0; // Make a "string"
 
-			duk_dup(ctx, -1); // Queue up render
 			duk_push_string(ctx, in);
-			SAFE_PCALL(duk_pcall(ctx, 1), "update");
-			duk_pop(ctx); // Discard return val
 		}
+
+		if (should_update) {
+			SAFE_PCALL(duk_pcall(ctx, 1), "update");
+		}
+		duk_pop(ctx); // Discard return val (or function ref)
 	}
 }

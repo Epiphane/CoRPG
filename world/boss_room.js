@@ -6,26 +6,23 @@ var boss = new GameObject("boss", {
 	level: 120
 });
 
+boss.image = 'boss.txt';
+player.image = 'player.txt';
+
 battle = new Battle(player, boss);
 
 render = function() {
-	battle.renderScene();
-
-	drawImage(1, -10, 'player.txt');
-	/*draw(1, -10, 
-		'         ______', 
-		'      .--      -', 
-		'     /          \\___', 
-		'     |          |', 
-		'     (           )', 
-		'      \\---------',
-		'     ----\\      \\',
-		'    /   / \\      \\');*/
-
-	battle.renderPlayers();
+	battle.render();
 };
 
 update = function(input) {
+	if (battle.win) {
+		move("boss_victory");
+	}
+	else if (battle.lose) {
+		move('home');
+	}
+
 	if (input == "t")
 		move("home");
 	else
