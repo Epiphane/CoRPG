@@ -472,29 +472,33 @@ void JSRegion::post_run() {
 		duk_dup(ctx, -1); // Queue up update
 
 		if (ch == 27) {
+			timeout(0);
 			ch = UI::getchar();
-			ch = UI::getchar();
-
-			if (ch == 27) {
+			timeout(-1);
+			if (ch == ERR) {
 				should_update = false;
 
 				if (!game->pause())
 					isComplete = true;
 			}
-			else if (ch == K_LEFT) {
-				duk_push_string(ctx, "left");
-			}
-			else if (ch == K_UP) {
-				duk_push_string(ctx, "up");
-			}
-			else if (ch == K_DOWN) {
-				duk_push_string(ctx, "down");
-			}
-			else if (ch == K_RIGHT) {
-				duk_push_string(ctx, "right");
-			}
 			else {
-				should_update = false;
+				ch = UI::getchar();
+
+				if (ch == K_LEFT) {
+					duk_push_string(ctx, "left");
+				}
+				else if (ch == K_UP) {
+					duk_push_string(ctx, "up");
+				}
+				else if (ch == K_DOWN) {
+					duk_push_string(ctx, "down");
+				}
+				else if (ch == K_RIGHT) {
+					duk_push_string(ctx, "right");
+				}
+				else {
+					should_update = false;
+				}
 			}
 		}
 		else {

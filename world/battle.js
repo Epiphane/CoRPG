@@ -1,5 +1,10 @@
 var Moves = require('./moves.js').Moves;
 
+var buttonsToChoose = [
+	' ',
+	'\n'
+];
+
 exports.Battle = Battle = function(p1, p2) {
 	this.p1 = p1;
 	this.p2 = p2;
@@ -95,6 +100,13 @@ Battle.prototype.render = function() {
 			}
 			println(' ' + this.p1_moves[i].name);
 		}
+
+		window(60, 4, 0, 18);
+		println("Press space to choose");
+	}
+	else {
+		window(60, 4, 0, 18);
+		println("Press space to continue");
 	}
 };
 
@@ -128,8 +140,11 @@ Battle.prototype.update = function(input) {
 			this.cursor ++;
 		}
 		this.cursor = this.cursor % this.p1_moves.length;
+		if (this.cursor < 0) {
+			this.cursor += this.p1_moves.length;
+		}
 
-		if (input == " ") {
+		if (buttonsToChoose.indexOf(input) >= 0) {
 			var action = this.p1_moves[this.cursor];
 
 			this.p1_action_tag = '';
