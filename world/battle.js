@@ -1,10 +1,5 @@
 var Moves = require('./moves.js').Moves;
 
-var buttonsToChoose = [
-	' ',
-	'\n'
-];
-
 exports.Battle = Battle = function(p1, p2) {
 	this.p1 = p1;
 	this.p2 = p2;
@@ -144,7 +139,7 @@ Battle.prototype.update = function(input) {
 			this.cursor += this.p1_moves.length;
 		}
 
-		if (buttonsToChoose.indexOf(input) >= 0) {
+		if (input == ' ') {
 			var action = this.p1_moves[this.cursor];
 
 			this.p1_action_tag = '';

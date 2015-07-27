@@ -13,6 +13,7 @@
 using namespace std;
 
 Window JS_window(0, 0);
+int screen_min_x, screen_max_x, screen_min_y, screen_max_y;
 int JS_openWindow(duk_context *ctx) {
 	int nargs = duk_get_top(ctx);
 
@@ -23,6 +24,15 @@ int JS_openWindow(duk_context *ctx) {
 		x = duk_get_int(ctx, 2);
 		y = duk_get_int(ctx, 3);
 	}
+
+	if (x - w / 2 < screen_min_x)
+		screen_min_x = x - w / 2;
+	if (x + w / 2 > screen_max_x)
+		screen_max_x = x + w / 2;
+	if (y - h / 2 < screen_min_y)
+		screen_min_y = y - h / 2;
+	if (y + h / 2 > screen_max_y)
+		screen_max_y = y + h / 2;
 
 	JS_window.init(w, h, x, y);
 	return 0; /* return undefined */
@@ -183,6 +193,8 @@ void JSScript::run() {
 	DEF_FUN("print",     JS_print,      DUK_VARARGS);
 	DEF_FUN("println",   JS_println,    DUK_VARARGS);
 	DEF_FUN("cursor",    JS_setcursor,  2);
+	
+	screen_min_x = screen_max_x = screen_min_y = screen_max_y = 0;
 
 	duk_push_global_object(ctx);
 	duk_get_prop_string(ctx, -1, "Duktape");
@@ -400,11 +412,44 @@ int JS_depend(duk_context *ctx) {
 	return 0;
 }
 
+struct Direction {
+	int active = 0;
+	string name;
+	string region;
+};
+const int D_LEFT = 0, D_RIGHT = 1, D_UP = 2, D_DOWN = 3;
+struct Direction directions[4];
+int JS_direction(duk_context *ctx) {
+	string dir    = duk_get_string(ctx, 0);
+	string name   = duk_get_string(ctx, 1);
+	string region = string(duk_get_string(ctx, 2));
+
+	int d = D_LEFT;
+	if (dir == ">")
+		d = D_RIGHT;
+	else if (dir == "v")
+		d = D_DOWN;
+	else if (dir == "^")
+		d = D_UP;
+
+	directions[d].active = 1;
+	directions[d].name = name;
+	directions[d].region = region;
+
+	return 0;
+}
+
 void JSRegion::pre_run() {
 	running_region = this;
 
+	// Clear directions
+	for (int i = 0; i < 4; i ++) {
+		directions[i].active = 0;
+	}
+
 	// Define global functions
 	DEF_FUN("move", JS_move, 1);
+	DEF_FUN("direction", JS_direction, 3);
 	DEF_FUN("depend", JS_depend, DUK_VARARGS);
 
 	// Create GameObject prototype
@@ -446,6 +491,12 @@ void JSRegion::pre_run() {
 		printError(string(name) + " function is not defined");\
 		return;\
 	}
+#define MOVE_OR_PUSH_DIR(ndx, name) if (directions[ndx].active) {\
+		running_region->move(directions[ndx].region);\
+	}\
+	else {\
+		duk_push_string(ctx, "up");\
+	}
 void JSRegion::post_run() {
 	// Get render and update functions
 	duk_push_global_object(ctx);
@@ -461,6 +512,34 @@ void JSRegion::post_run() {
 		mvprintw(4, 0, "^-----------------------^");
 		duk_dup(ctx, -2); // Queue up render()
 		SAFE_PCALL(duk_pcall(ctx, 0), "render");
+
+		// Render directional stuff
+		int mid_x = UI::getCols() / 2;
+		int mid_y = UI::getRows() / 2;
+		if (directions[D_LEFT].active) {
+			mvprintw(mid_y + (screen_min_y + screen_max_y) / 2,
+						mid_x + screen_min_x - directions[D_LEFT].name.length() - 4,
+						"< %s", directions[D_LEFT].name.c_str());
+		}
+		if (directions[D_RIGHT].active) {
+			mvprintw(mid_y + (screen_min_y + screen_max_y) / 2,
+						mid_x + screen_max_x + 2,
+						"%s >", directions[D_RIGHT].name.c_str());
+		}
+		if (directions[D_UP].active) {
+			mvprintw(mid_y + screen_min_y - 3, 
+						mid_x + (screen_min_x + screen_max_x) / 2, "^");
+			mvprintw(mid_x + (screen_min_x + screen_max_x - directions[D_UP].name.length()) / 2,
+						mid_y + screen_min_y - 2,
+						"%s", directions[D_UP].name.c_str());
+		}
+		if (directions[D_DOWN].active) {
+			mvprintw(mid_y + screen_max_y + 3,
+						mid_x + (screen_max_x + screen_min_x) / 2, "v");
+			mvprintw(mid_y + screen_max_y + 2,
+						mid_x + (screen_min_x + screen_max_x - directions[D_DOWN].name.length()) / 2,
+						"%s", directions[D_DOWN].name.c_str());
+		}
 	
 		duk_pop(ctx); // Discard return val
 		UI::refresh();			  
@@ -485,16 +564,16 @@ void JSRegion::post_run() {
 				ch = UI::getchar();
 
 				if (ch == K_LEFT) {
-					duk_push_string(ctx, "left");
+					MOVE_OR_PUSH_DIR(D_LEFT, "left");
 				}
 				else if (ch == K_UP) {
-					duk_push_string(ctx, "up");
+					MOVE_OR_PUSH_DIR(D_UP, "up");
 				}
 				else if (ch == K_DOWN) {
-					duk_push_string(ctx, "down");
+					MOVE_OR_PUSH_DIR(D_DOWN, "down");
 				}
 				else if (ch == K_RIGHT) {
-					duk_push_string(ctx, "right");
+					MOVE_OR_PUSH_DIR(D_RIGHT, "right");
 				}
 				else {
 					should_update = false;

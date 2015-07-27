@@ -1,5 +1,9 @@
 depend("boss_room");
 
+direction('<', 'Market',  'market');
+direction('v', 'Home',    'house');
+direction('>', 'Gardens', 'gardens');
+
 var _moves = require('./moves.js').Moves;
 var Battle = require("./battle.js").Battle;
 
@@ -10,12 +14,18 @@ var boss = new GameObject("boss", {
 });
 
 render = function() {
-	window(40, 10, 0, 0);
+	window(40, 12, 0, 0);
+
+	println('~The town of Weebly~');
+	println();
 
 	println("Hello, " + player.get("name") + "!")
 	println()
 
-	println("Press t to go to town.")
+	println('As you can see, the evil boss')
+	println(boss.get('name') + ' has been ravaging Weeblia..');
+	println()
+	println('Please save our land!');
 };
 
 update = function(input) {

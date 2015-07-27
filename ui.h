@@ -43,6 +43,9 @@ public:
 	Window(std::string filename);
 	void init(int w, int h, int x, int y);
 
+	int getWidth() { return x2 - x1; }
+	int getHeight() { return y2 - y1; }
+
 	static void printMessage(std::string title, std::string message);
 	static void printError(std::string message) { printMessage("Error", message); }
 	
