@@ -82,9 +82,17 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 }
 else if ($_SERVER["REQUEST_METHOD"] == "PUT") {
-	$newObject = \GameObject\Model\GameObjectModel::build($params);
-
-	sendResponse($newObject->save());
+	$name = $params["name"];
+	$region = $params["region"];
+	$obj = \GameObject\Model\GameObjectModel::findByNameRegionGame($name, array($region));
+	if ($obj) {
+		sendResponse($obj->update($params));
+	}
+	else {
+		$obj = \GameObject\Model\GameObjectModel::build($params);
+	
+		sendResponse($obj->save());
+	}
 }
 
 ?>

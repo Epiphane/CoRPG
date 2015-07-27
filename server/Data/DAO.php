@@ -140,9 +140,6 @@ class DAO
 		call_user_func_array([$q, "bind_param"], array_merge([implode($types)], $values));
 
 		$result = $q->execute();
-		return [
-			"success" => $result,
-			"message" => $q->error
-		];
+		return $model;
 	}
 }

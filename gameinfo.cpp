@@ -32,6 +32,8 @@ Json::Value GameObject::get(std::string prop) {
 		return state["properties"]["nickname"];
 	if (prop == "name" || prop == "region")
 		return state[prop];
+	if (prop == "new")
+		return Json::Value(_new ? "true" : "");
 
 	return state["properties"][prop];
 }
@@ -89,6 +91,7 @@ void GameObject::infoPage(string title) {
 	page.println();
 
 	page.printlnleft("Name: %s", get("name").asCString());
+	page.printlnleft("Class: %s", get("class").asCString());
 	page.printlnleft("Level: %d", get("level").asInt());
 	page.printlnleft("Health: %d / %d", get("health").asInt(), get("max_health").asInt());
 

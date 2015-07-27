@@ -12,9 +12,10 @@ class GameObject {
 public:
 	Json::Value state;
 	std::string name, region;
+	bool _new;
 
-	GameObject(Json::Value info) { init(info); }
-	GameObject(std::string name, std::string region) : name(name), region(region) {};
+	GameObject(Json::Value info) : _new(false) { init(info); }
+	GameObject(std::string name, std::string region) : name(name), region(region), _new(false) {};
 	void init(Json::Value info);
 	
 	void fetch();

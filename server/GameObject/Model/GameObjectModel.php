@@ -8,6 +8,7 @@
 namespace GameObject\Model;
 
 require_once(__DIR__ . "/GameObjectPropertyModel.php");
+require_once(__DIR__ . "/GameObjectOwnershipModel.php");
 
 use \Data\DAO;
 
@@ -17,7 +18,9 @@ class GameObjectModel extends \Data\Model
 
 	public static $columns = [
 		"object_id" => "string",
+		"game" => "string",
 		"name" => "string",
+		"class" => "string",
 		"nickname" => "string",
 		"region" => "string",
 		"level" => "int",
@@ -27,12 +30,13 @@ class GameObjectModel extends \Data\Model
 	];
 
 	public static $const_columns = [
-		"object_id", "name", "region"
+		"object_id", "game", "name", "region"
 	];
 
 	public $object_id;
 	public $game = "weebly";
 	public $name;
+	public $class;
 	public $nickname;
 	public $region;
 	public $level;
@@ -40,6 +44,43 @@ class GameObjectModel extends \Data\Model
 	public $health;
 	public $max_health;
 	public $properties = array();
+
+	private function setProperties($model, $properties, $existing = array()) {
+		foreach ($properties as $prop => $val) {
+			switch($prop) {
+			case "class":
+				$model->class = $val;
+				break;
+			case "health":
+				$model->health = $val;
+				break;
+			case "max_health":
+			case "maxhealth":
+				$model->max_health = $val;
+				break;
+			case "level":
+				$model->level = $val;
+				break;
+			case "experience":
+				$model->experience = $val;
+				break;
+			default:
+				if ($existing[$prop]) {
+					break;
+				}
+
+				$existing[$prop] = GameObjectPropertyModel::build([
+					"object_id" => $model->object_id,
+					"property" => $prop,
+					"value" => $val
+				]);
+				$existing[$prop]->save();
+				break;
+			}
+		}
+
+		return $existing;
+	}
 
 	public static function build($assoc) {
 		$model = parent::build($assoc);
@@ -54,37 +95,7 @@ class GameObjectModel extends \Data\Model
 			$properties[$property->property] = $property;
 		}
 
-		foreach ($model->properties as $prop => $val) {
-			switch($prop) {
-			case "health":
-				$model->name = $val;
-				break;
-			case "max_health":
-			case "maxhealth":
-				$model->max_health = $val;
-				break;
-			case "level":
-				$model->level = $val;
-				break;
-			case "experience":
-				$model->experience = $val;
-				break;
-			default:
-				if ($properties[$prop]) {
-					break;
-				}
-
-				$properties[$prop] = GameObjectPropertyModel::build([
-					"object_id" => $model->object_id,
-					"property" => $prop,
-					"value" => $val
-				]);
-				$properties[$prop]->save();
-				break;
-			}
-		}
-
-		$model->properties = $properties;
+		$model->properties = self::setProperties($model, $model->properties, $properties);;
 
 		return $model;
 	}
@@ -112,6 +123,7 @@ class GameObjectModel extends \Data\Model
 		}
 
 		$properties["level"] = $this->level;
+		$properties["class"] = $this->class;
 		$properties["nickname"] = $this->nickname;
 		$properties["experience"] = $this->experience;
 		$properties["health"] = $this->health;
@@ -128,7 +140,9 @@ class GameObjectModel extends \Data\Model
 		$myProps = array();
 
 		if ($attrs["name"]) {
-			$attrs["nickname"] = $attrs["name"];
+			if ($attrs["name"] !== $this->name) {
+				$attrs["nickname"] = $attrs["name"];
+			}
 		}
 
 		// Don't update restricted stuff
@@ -136,7 +150,9 @@ class GameObjectModel extends \Data\Model
 			unset($attrs[$restricted]);
 		}
 
-		foreach ($attrs as $prop => $val) {
+		// Move properties to where they belong
+		$properties = $attrs["properties"] ?: array();
+		foreach ($properties as $prop => $val) {
 			if (self::$columns[$prop]) {
 				$myProps[$prop] = $val;
 			}
@@ -161,15 +177,20 @@ class GameObjectModel extends \Data\Model
 			}
 		}
 
-		if (count($myProps) > 0) {
-			$result = parent::update($myProps);
-
-			if (!$result)
-				throw new \Exception("GameObject failed to update");
+		unset($attrs["properties"]);
+		foreach ($attrs as $prop => $val) {
+			if (self::$columns[$prop]) {
+				$myProps[$prop] = $val;
+			}
+			else {
+				throw new \Exception("Property " . $prop . " is not part of GameObjectModel. Please add to 'properties'");
+			}
 		}
 
-		return [
-			"success" => true
-		];
+		if (count($myProps) > 0) {
+			return parent::update($myProps);
+		}
+
+		return $this;
 	}
 }

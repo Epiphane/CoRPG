@@ -269,8 +269,8 @@ int GO_create(duk_context *ctx) {
 		string prop = duk_get_string(ctx, -2);
 		if (isInt(prop))
 			defaults[prop] = duk_get_int(ctx, -1);
-		else
-			defaults[prop] = string(duk_get_string(ctx, -1));
+		else 
+			defaults[prop] = string(duk_to_string(ctx, -1));
 
 		duk_pop_2(ctx); // Remove values
 	}
@@ -495,7 +495,7 @@ void JSRegion::pre_run() {
 		running_region->move(directions[ndx].region);\
 	}\
 	else {\
-		duk_push_string(ctx, "up");\
+		duk_push_string(ctx, name);\
 	}
 void JSRegion::post_run() {
 	// Get render and update functions

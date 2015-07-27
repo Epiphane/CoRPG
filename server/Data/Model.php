@@ -55,7 +55,7 @@ class Model
 			return $dao->create($this);
 		}
 		else {
-			return $dao->save($this, $model::$columns);
+			return $dao->update($this, $model);
 		}
 	}
 

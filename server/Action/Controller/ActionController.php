@@ -55,6 +55,40 @@ class ActionController
 		return $this->actor->update($action);
 	}
 
+	public function own($action) {
+		$this->check($this->victim, "victim");
+
+		$request = new \Data\Request();
+		$request->Filter[] = new \Data\Filter("subject_id", $this->victim->object_id);
+		$ownership = \GameObject\Model\GameObjectOwnershipModel::findOne($request);
+
+		if ($ownership) {
+			if ($ownership->object_id === $this->actor->object_id) {
+				return [
+					"success" => true
+				];
+			}
+			else {
+				return [
+					"success" => false,
+					"error" => "Object is already owned"
+				];
+			}
+		}
+		else {
+			$ownership = \GameObject\Model\GameObjectOwnershipModel::build([
+				"object_id" => $this->actor->object_id,
+				"subject_id" => $this->victim->object_id
+			]);
+
+			$ownership->save();
+
+			return [
+				"success" => true
+			];
+		}
+	}
+
 	public function attack($action) {
 		$this->check($this->victim, "victim");
 		$this->check($action["damage"], "action.damage");

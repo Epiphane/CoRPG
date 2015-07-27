@@ -84,6 +84,7 @@ GameObject *Game::getObject(const std::string &name) {
 }
 
 GameObject *Game::getOrBuild(const string &name, Json::Value _default) {
+	// cout << _default.toStyledString() << endl;
 	GameObject *found = getObject(name);
 	if (found) return found;
 
@@ -91,11 +92,11 @@ GameObject *Game::getOrBuild(const string &name, Json::Value _default) {
 	Json::Value object;
 	object["name"]       = name;
 	object["region"]     = region;
-	object["isNew"]      = true;
 	object["properties"] = _default;
 
 	GameObject *newObj = new GameObject(object);
 	newObj->save();
+	newObj->_new = true;
 
 	return newObj;
 }
