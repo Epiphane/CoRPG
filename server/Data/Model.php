@@ -73,6 +73,14 @@ class Model
 		return $dao->update($this, $attrs);
 	}
 
+	public static function findById($id) {
+		$request = new \Data\Request();
+		$pKey    = self::getPrimaryKey(get_called_class());
+		$request->Filter[] = new \Data\Filter($pKey, $id);
+
+		return self::findOne($request);
+	}
+
 	public static function find($request) {
 		$dao = new \Data\DAO(get_called_class());
 
@@ -82,8 +90,6 @@ class Model
 	public static function findOne($request) {
 		$dao = new \Data\DAO(get_called_class());
 
-		$game_object = $dao->findOne($request);
-
-		return $game_object;
+		return $dao->findOne($request);
 	}
 }

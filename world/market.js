@@ -26,9 +26,7 @@ var excalibur = new GameObject("excalibur", {
    attack: 42
 });
 
-weapons_dealer.actOn(excalibur, {
-   method: "own"
-});
+weapons_dealer.actOn(excalibur, { method: "own" });
 
 var currentShop = false;
 
@@ -45,12 +43,8 @@ render = function() {
       shops.render();
    }
    else {
-
+      println(weapons_dealer.get('possessions')[0].get('name'));
    }
-
-if (excalibur.get('new')) {
-   println("oidhniouwqfhniquwf");
-}
 
    drawImage(0, -7, 'market.txt');
 };

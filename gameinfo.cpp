@@ -34,8 +34,25 @@ Json::Value GameObject::get(std::string prop) {
 		return state[prop];
 	if (prop == "new")
 		return Json::Value(_new ? "true" : "");
+	if (prop == "possessions")
+		Window::printError("You must call getPossessions for these");
 
 	return state["properties"][prop];
+}
+
+vector<GameObject *> GameObject::getPossessions() {
+	if (!possessions_fetched) {
+		Json::Value items = Curl::GET("possessions/" + state["object_id"].asString());
+		possessions_fetched = true;
+
+		possessions.clear();
+
+		for (int i = 0; i < items.size(); i ++) {
+			possessions.push_back(new GameObject(items[i]));
+		}
+	}
+
+	return possessions;
 }
 
 void GameObject::act(GameObject *other, Json::Value action) {

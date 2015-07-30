@@ -19,4 +19,11 @@ class GameObjectOwnershipModel extends \Data\Model
 	];
 
    public static $const_columns = ["subject_id"];
+
+   public function read() {
+      return [
+         "object_id" => $this->object_id,
+         "subject_id" => $this->subject_id
+      ];
+   }
 }

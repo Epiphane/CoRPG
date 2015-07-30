@@ -12,6 +12,8 @@
 
 using namespace std;
 
+inline Json::Value duk_get_json(duk_context *ctx, duk_idx_t ind);
+
 Window JS_window(0, 0);
 int screen_min_x, screen_max_x, screen_min_y, screen_max_y;
 int JS_openWindow(duk_context *ctx) {
@@ -42,8 +44,24 @@ int JS_print(duk_context *ctx) {
 	int nargs = duk_get_top(ctx);
 	if (nargs == 0) return 0;
 
-	const char *_message = duk_get_string(ctx, 0);
-	JS_window.print("%s", _message);
+	Json::Value _message = duk_get_json(ctx, 0);
+	if (_message.type() == Json::stringValue) {
+		JS_window.print("%s", _message.asCString());
+	}
+	else {
+		const char *message = _message.toStyledString().c_str();
+		int length = strlen(message);
+		char *trimmed_message = new char[length];
+		int t = 0;
+		for (int i = 0; i < length; i ++) {
+			if (message[i] != ' ' && message[i] != '\n' && message[i] != '\t') {
+				trimmed_message[t++] = message[i];
+			}
+		}
+		trimmed_message[t] = 0;
+
+		JS_window.print(">>>%s<<<", trimmed_message);
+	}
 
 	return 0;
 }
@@ -258,6 +276,53 @@ inline Json::Value duk_get_json(duk_context *ctx, duk_idx_t ind) {
 	return result;
 }
 
+inline void duk_push_json(duk_context *ctx, Json::Value val) {
+	Json::ValueType type = val.type();
+
+	int length, obj_index;
+
+	switch (type) {
+		case Json::nullValue:
+			duk_push_null(ctx);
+			break;
+		case Json::intValue:
+		case Json::uintValue:
+		case Json::realValue:
+			duk_push_number(ctx, val.asDouble());
+			break;
+		case Json::stringValue:
+			duk_push_string(ctx, val.asCString());
+			break;
+		case Json::booleanValue:
+			duk_push_boolean(ctx, val.asBool());
+			break;
+		case Json::arrayValue:
+			length = val.size();
+			obj_index = duk_push_array(ctx);
+
+			for (int ndx = 0; ndx < length; ndx ++) {
+				duk_push_json(ctx, val[ndx]);
+				duk_put_prop_index(ctx, obj_index, ndx);
+			}
+			break;
+		case Json::objectValue:
+			obj_index = duk_push_object(ctx);
+
+			Json::Value::Members keys = val.getMemberNames();
+			Json::Value::Members::iterator it = keys.begin();
+			while (it != keys.end()) {
+				Json::Value value = val[*it];
+				duk_push_string(ctx, it->c_str());
+				duk_push_json(ctx, value);
+
+				duk_put_prop(ctx, obj_index);
+
+				it ++;
+			}
+			break;
+	}
+}
+
 bool isInt(string prop) {
 	return prop == "level" || prop == "health" || prop == "max_health";
 }
@@ -369,11 +434,22 @@ int GO_get(duk_context *ctx) {
 	GameObject *obj = duk_get_this(ctx);
 
 	std::string prop(duk_to_string(ctx, 0));
-	Json::Value val = obj->get(prop);
-	if (isInt(prop))
-		duk_push_number(ctx, val.asInt());
-	else
-		duk_push_string(ctx, val.asCString());
+	if (prop == "possessions") {
+		std::vector<GameObject *> possessions = obj->getPossessions();
+		int arr_index = duk_push_array(ctx);
+
+		for (int i = 0; i < possessions.size(); i ++) {
+			duk_push_pointer(ctx, possessions[i]);
+			duk_to_object(ctx, -1);
+			duk_eval_string(ctx, "GameObject.prototype");
+			duk_set_prototype(ctx, -2);
+
+			duk_put_prop_index(ctx, arr_index, i);
+		}
+	}
+	else {
+		duk_push_json(ctx, obj->get(prop));
+	}
 
 	return 1;
 }

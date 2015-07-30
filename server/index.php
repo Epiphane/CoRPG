@@ -32,6 +32,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 	else {
 		$name = $region = $game = null;
 
+		if ($path[0] === "possessions") {
+			array_splice($path, 0, 1);
+			$fetch_possessions = true;
+		}
+
 		// Find Object
 		if (count($path) == 1) {
 			$name = $path[0];
@@ -42,11 +47,32 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 			array_push($deps, $path[0]);
 			$name = $path[1];
 		}
+
+		$obj = \GameObject\Model\GameObjectModel::findById($name);
+
+		if (!$obj) {
+			$obj = \GameObject\Model\GameObjectModel::findByNameRegionGame($name, $deps, $game);
+		}
 	
-		$obj = \GameObject\Model\GameObjectModel::findByNameRegionGame($name, $deps, $game);
-	
-		if ($obj)
+		if ($fetch_possessions) {
+			if ($obj) {
+				$possessions = array();
+				foreach ($obj->ownerships as $object) {
+					$possession = \GameObject\Model\GameObjectModel::findById($object->subject_id);
+
+					$possessions[] = $possession->read();
+				}
+
+				sendResponse($possessions);
+			}
+			else {
+				header('Content-Type: application/json');
+				echo "[]";
+			}
+		}
+		elseif ($obj) {
 			sendResponse($obj->read());
+		}
 		else {
 			header('Content-Type: application/json');
 			echo "{}";

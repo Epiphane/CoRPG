@@ -44,6 +44,7 @@ class GameObjectModel extends \Data\Model
 	public $health;
 	public $max_health;
 	public $properties = array();
+	public $ownerships = array();
 
 	private function setProperties($model, $properties, $existing = array()) {
 		foreach ($properties as $prop => $val) {
@@ -95,7 +96,10 @@ class GameObjectModel extends \Data\Model
 			$properties[$property->property] = $property;
 		}
 
-		$model->properties = self::setProperties($model, $model->properties, $properties);;
+		$model->properties = self::setProperties($model, $model->properties, $properties);
+
+		// Search for existing ownerships
+		$model->ownerships = GameObjectOwnershipModel::find($request);
 
 		return $model;
 	}
@@ -106,6 +110,12 @@ class GameObjectModel extends \Data\Model
 
 	public static function findByNameRegionGame($name, $regions = array(), $game = null) {
 		$request = new \Data\Request();
+
+		for ($i = 0; $i < count($regions); $i ++) {
+			$regions[$i] = str_replace("%20", " ", $regions[$i]);
+		}
+
+		$name = str_replace("%20", " ", $name);
 
 		$request->Filter[] = new \Data\Filter("name", $name);
 		if (is_array($regions) && count($regions) > 0)
@@ -129,10 +139,17 @@ class GameObjectModel extends \Data\Model
 		$properties["health"] = $this->health;
 		$properties["max_health"] = $this->max_health;
 
+		$possessions = array();
+		foreach($this->ownerships as $obj) {
+			$possessions[] = $obj->subject_id;
+		}
+
 		return [
+			"object_id" => $this->object_id,
 			"name" => $this->name,
 			"region" => $this->region,
-			"properties" => $properties
+			"properties" => $properties,
+			"possessions" => $possessions
 		];
 	}
 
