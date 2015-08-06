@@ -127,7 +127,7 @@ class GameObjectModel extends \Data\Model
 	}
 
 	public function read() {
-		$properties = array();
+		$properties = [ "boring" => true ];
 		foreach($this->properties as $prop) {
 			$properties[$prop->property] = $prop->value;
 		}
@@ -153,6 +153,39 @@ class GameObjectModel extends \Data\Model
 		];
 	}
 
+	public function setProperty($prop, $val) {
+		// Look through existing properties
+		foreach ($this->properties as $property) {
+			if ($property->property === $prop) {
+				$property->update([
+					"value" => $val
+				]);
+
+				return;
+			}
+		}
+
+		// No existing property
+		$property = GameObjectPropertyModel::build([
+			"object_id" => $this->object_id,
+			"property" => $prop,
+			"value" => $val
+		]);
+
+		$property->save();
+	}
+
+	public function getProperty($prop) {
+		// Look through existing properties
+		foreach ($this->properties as $property) {
+			if ($property->property === $prop) {
+				return $property->value;
+			}
+		}
+
+		return null;
+	}
+
 	public function update($attrs) {
 		$myProps = array();
 
@@ -168,7 +201,7 @@ class GameObjectModel extends \Data\Model
 		}
 
 		// Move properties to where they belong
-		$properties = $attrs["properties"] ?: array();
+		$properties = $attrs["properties"] ?: $attrs;
 		foreach ($properties as $prop => $val) {
 			if (self::$columns[$prop]) {
 				$myProps[$prop] = $val;
@@ -178,6 +211,10 @@ class GameObjectModel extends \Data\Model
 					$result = $this->properties[$prop]->update([
 						"value" => $val
 					]);
+
+					if (!$result) {
+						throw new \Exception("Property " . $prop . " failed to update");
+					}
 				}
 				else {
 					$this->properties[$prop] = $property = \GameObject\Model\GameObjectPropertyModel::build([
@@ -187,10 +224,11 @@ class GameObjectModel extends \Data\Model
 					]);
 		
 					$result = $property->save();
+					if (!$result) {
+						print_r($property);
+						throw new \Exception("Property " . $prop . " failed to create");
+					}
 				}
-		
-				if (!$result)
-					throw new \Exception("Property " . $prop . " failed to update");
 			}
 		}
 

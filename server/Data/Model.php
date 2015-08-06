@@ -29,6 +29,20 @@ class Model
 		$pKey = self::getPrimaryKey($m);
 		if (!$model->$pKey) {
 			$model->$pKey = $model->createPrimaryKey();
+
+			// COLLISION CHECK
+			$runs = 1;
+			while($m::findById($model->$pKey)) {
+				_log("Collision on Primary key " . $pKey . "=" . $model->$pKey);
+
+				$model->$pKey = $model->createPrimaryKey($runs++);
+
+				if ($runs === 10) {
+					_log("10 collisions, aborting..");
+
+					die();
+				}
+			}
 		}
 
 		return $model;
@@ -43,8 +57,8 @@ class Model
 		return $key;
 	}
 
-	public function createPrimaryKey() {
-		return mt_rand(1000000, 9999999);
+	public function createPrimaryKey($rerun = null) {
+		return mt_rand(100000000, 999999999);
 	}
 
 	public function save() {

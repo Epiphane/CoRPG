@@ -7,6 +7,10 @@ require_once(__DIR__ . "/GameObject/Model/GameObjectPropertyModel.php");
 require_once(__DIR__ . "/GameObject/Model/GameObjectModel.php");
 require_once(__DIR__ . "/GameObject/Controller/GameObjectController.php");
 
+function _log($message) {
+	file_put_contents(__DIR__ . "/requests.log", $message . "\n", FILE_APPEND);
+}
+
 function sendResponse($response) {
 	header('Content-Type: application/json');
 
@@ -14,6 +18,7 @@ function sendResponse($response) {
 }
 
 $url = substr($_SERVER["REQUEST_URI"], strlen("/CoRPG/"));
+_log($_SERVER["REQUEST_METHOD"] . " " . $url);
 if (strrpos($url, "?"))
 	$url = substr($url, 0, strrpos($url, "?"));
 $path = explode("/", $url);
@@ -80,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 	}
 }
 else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	_log("\t" . json_encode($params));
 	if ($path[0] === "action") {
 		$name = $params["self"]["name"];
 		$region = $params["self"]["region"];
@@ -108,16 +114,17 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	}
 }
 else if ($_SERVER["REQUEST_METHOD"] == "PUT") {
+	_log("\t" . json_encode($params));
 	$name = $params["name"];
 	$region = $params["region"];
 	$obj = \GameObject\Model\GameObjectModel::findByNameRegionGame($name, array($region));
 	if ($obj) {
-		sendResponse($obj->update($params));
+		sendResponse($obj->update($params)->read());
 	}
 	else {
 		$obj = \GameObject\Model\GameObjectModel::build($params);
 	
-		sendResponse($obj->save());
+		sendResponse($obj->save()->read());
 	}
 }
 

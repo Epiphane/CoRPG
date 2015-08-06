@@ -39,7 +39,7 @@ class ActionController
 			catch (\Exception $e) {
 				return [
 					"success" => false,
-					"error" => $e->getMessage
+					"error" => $e->getMessage()
 				];
 			}
 		}
@@ -52,7 +52,53 @@ class ActionController
 	}
 
 	public function set($action) {
-		return $this->actor->update($action);
+		$this->actor->update([
+			"properties" => $action
+		]);
+
+		return [
+			"success" => true
+		];
+	}
+
+	public function buy($action) {
+		$this->check($this->victim, "victim");
+		$this->check($action["price"]["amount"], "price amount");
+		$this->check($action["price"]["type"], "price type");
+
+		$price = $action["price"]["amount"];
+		$type = $action["price"]["type"];
+
+		$request = new \Data\Request();
+		$request->Filter[] = new \Data\Filter("subject_id", $this->victim->object_id);
+		$ownership = \GameObject\Model\GameObjectOwnershipModel::findOne($request);
+
+		if ($ownership) {
+			if ($ownership->object_id !== $this->actor->object_id) {
+				$owner = \GameObject\Model\GameObjectModel::findById($ownership->object_id);
+				$funds = $owner->getProperty($type);
+				$owner->setProperty($type, $funds + $price);
+
+				$ownership->update([
+					"object_id" => $this->actor->object_id
+				]);
+
+				$funds = $this->actor->getProperty($type);
+				$this->actor->setProperty($type, $funds - $price);
+			}
+		}
+		else {
+			$ownership = \GameObject\Model\GameObjectOwnershipModel::build([
+				"object_id" => $this->actor->object_id,
+				"subject_id" => $this->victim->object_id
+			]);
+
+			$ownership->save();
+		}
+
+		return [
+			"success" => true
+		];
 	}
 
 	public function own($action) {

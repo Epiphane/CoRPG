@@ -1,8 +1,8 @@
 depend("boss_room");
 
-direction('<', 'Market',  'market');
-direction('v', 'Home',    'house');
-direction('>', 'Gardens', 'gardens');
+direction('<', 'Market',     'market');
+direction('v', 'Your House', 'house');
+direction('>', 'Gardens',    'gardens');
 
 var _moves = require('./moves.js').Moves;
 var Battle = require("./battle.js").Battle;
@@ -29,10 +29,6 @@ render = function() {
 };
 
 update = function(input) {
-	if (input == "i")
-		boss.info();
-	else if (input == "t")
-		move("town");
-	else if (input == "b")
+	if (input == "b")
 		move("boss_room");
 };

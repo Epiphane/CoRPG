@@ -97,12 +97,17 @@ class DAO
 	public function create($model) {
 		$query = "INSERT INTO " . $this->tableName;
 
+		$vals = array();
 		foreach ($this->colTypes as $column => $type) {
 			if ($model->$column !== null) {
 				$columns[] = $column;
 				$types[] = $type;
-				$values[] = &$model->$column;
+				$vals[] = $model->$column;
 			}
+		}
+
+		foreach ($vals as $id => $value) {
+			$values[] = &$vals[$id];
 		}
 	
 		$query .= "(" . join(", ", $columns) . ")";

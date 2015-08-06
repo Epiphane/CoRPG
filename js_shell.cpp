@@ -242,7 +242,7 @@ inline GameObject *duk_get_this(duk_context *ctx) {
 }
 
 inline Json::Value duk_get_json(duk_context *ctx, duk_idx_t ind) {
-	Json::Value result;
+	Json::Value result(Json::objectValue);
 
 	// Get type of the current value
 	duk_int_t type = duk_get_type(ctx, ind);
@@ -328,29 +328,9 @@ bool isInt(string prop) {
 }
 
 int GO_create(duk_context *ctx) {
-	Json::Value defaults;
-	duk_enum(ctx, 1, DUK_ENUM_OWN_PROPERTIES_ONLY);
-	while (duk_next(ctx, -1, 1)) {
-		string prop = duk_get_string(ctx, -2);
-		if (isInt(prop))
-			defaults[prop] = duk_get_int(ctx, -1);
-		else 
-			defaults[prop] = string(duk_to_string(ctx, -1));
-
-		duk_pop_2(ctx); // Remove values
-	}
-	duk_pop(ctx);
+	Json::Value defaults = duk_get_json(ctx, 1);
 
 	duk_push_pointer(ctx, running_region->game->getOrBuild(duk_to_string(ctx, 0), defaults));
-	duk_to_object(ctx, -1);
-	duk_eval_string(ctx, "GameObject.prototype");
-	duk_set_prototype(ctx, -2);
-
-	return 1;
-}
-
-int GO_find(duk_context *ctx) {
-	duk_push_pointer(ctx, running_region->game->getObject(duk_to_string(ctx, 0)));
 	duk_to_object(ctx, -1);
 	duk_eval_string(ctx, "GameObject.prototype");
 	duk_set_prototype(ctx, -2);

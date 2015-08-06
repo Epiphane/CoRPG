@@ -1,0 +1,383 @@
+ GET /CoRPG/player
+GET /CoRPG/global/player
+GET /CoRPG/market/weaponsdealer?deps=
+PUT /CoRPG/market/weaponsdealer
+GET /CoRPG/market/potionsdealer?deps=
+PUT /CoRPG/market/potionsdealer
+GET /CoRPG/market/scrollsdealer?deps=
+PUT /CoRPG/market/scrollsdealer
+GET /CoRPG/market/dagger?deps=
+POST /CoRPG/action
+GET /CoRPG/market/excalibur?deps=
+POST /CoRPG/action
+GET /CoRPG/possessions/e616d3afcb68245265e05dda3662332d
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+GET market/dagger?deps=
+POST action
+GET market/excalibur?deps=
+POST action
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET player
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET home/boss?deps=boss_room,
+GET market/weaponsdealer?deps=boss_room,
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=boss_room,
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=boss_room,
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+POST action
+	{"action":{"method":"buy","price":{"amount":{"amount":2,"str":"2 undefined"},"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+GET 393fd6eda86abd251f80e5780f5830ad
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET home/boss?deps=boss_room,
+GET market/weaponsdealer?deps=boss_room,
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=boss_room,
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=boss_room,
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+POST action
+	{"action":{"method":"buy","price":{"amount":{"amount":2,"str":"2 undefined"},"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+GET home/boss?deps=boss_room,boss_room,
+GET market/weaponsdealer?deps=boss_room,boss_room,
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=boss_room,boss_room,
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=boss_room,boss_room,
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=boss_room,boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=boss_room,boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET home/boss?deps=boss_room,boss_room,boss_room,
+GET market/weaponsdealer?deps=boss_room,boss_room,boss_room,
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=boss_room,boss_room,boss_room,
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=boss_room,boss_room,boss_room,
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=boss_room,boss_room,boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=boss_room,boss_room,boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+GET global/player
+GET market/weaponsdealer?deps=
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+GET home/boss?deps=boss_room,
+GET market/weaponsdealer?deps=boss_room,
+PUT market/weaponsdealer
+	{"name":"weapons dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/potionsdealer?deps=boss_room,
+PUT market/potionsdealer
+	{"name":"potions dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/scrollsdealer?deps=boss_room,
+PUT market/scrollsdealer
+	{"name":"scrolls dealer","properties":{"class":"NPC","gold":"2500","health":10000,"level":120,"max_health":10000},"region":"market"}
+GET market/dagger?deps=boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"dagger","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET market/excalibur?deps=boss_room,
+POST action
+	{"action":{"method":"own"},"other":{"name":"excalibur","region":"market"},"self":{"name":"weapons dealer","region":"market"}}
+GET possessions/e616d3afcb68245265e05dda3662332d
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"self":{"name":"dagger","region":"market"},"other":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+POST action
+	{"action":{"method":"buy","price":{"amount":2,"type":"gold"}},"other":{"name":"dagger","region":"market"},"self":{"name":"player","region":"global"}}
+Set property gold to 2506
+Set property gold to 14

@@ -23,7 +23,7 @@ void GameObject::fetch() {
 
 void GameObject::save() {
 	Json::Value result = Curl::PUT(name, region, state);
-	
+
 	init(result);
 }
 
@@ -36,6 +36,10 @@ Json::Value GameObject::get(std::string prop) {
 		return Json::Value(_new ? "true" : "");
 	if (prop == "possessions")
 		Window::printError("You must call getPossessions for these");
+
+	if (!state["properties"].isMember(prop)) {
+		return Json::Value("");
+	}
 
 	return state["properties"][prop];
 }
