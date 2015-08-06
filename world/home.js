@@ -1,5 +1,6 @@
 depend("boss_room");
 
+direction('^', 'Fields',     'home_fields');
 direction('<', 'Market',     'market');
 direction('v', 'Your House', 'house');
 direction('>', 'Gardens',    'gardens');

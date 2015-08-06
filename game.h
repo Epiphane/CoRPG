@@ -16,12 +16,13 @@ private:
 	std::vector<std::string> deps;
 
 	std::string region;
+	Json::Value region_args;
 
 	bool isComplete;
 
 	void new_game();
 
-	Game() : player("player", "global"), isComplete(true) { cache.clear(); };
+	Game() : player("player", "global"), isComplete(true) { deps.clear(); cache.clear(); };
 
 public:
 	static Game *instance();
@@ -30,8 +31,9 @@ public:
 	GameObject *getObject(const std::string &name);
 	GameObject *getOrBuild(const std::string &name, Json::Value _default);
 
-	virtual void setRegion(const std::string &_r) { region = _r; }
+	virtual void setRegion(const std::string &_r, Json::Value args) { deps.clear(); region = _r; region_args = args; }
 	std::string getRegion() { return region; }
+	Json::Value getRegionArgs() { return region_args; }
 	void addDependency(const std::string region) { deps.push_back(region); }
 
 	virtual void load();

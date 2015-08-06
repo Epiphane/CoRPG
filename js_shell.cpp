@@ -447,13 +447,19 @@ int GO_viewInfo(duk_context *ctx) {
 	return 0;
 }
 
-void JSRegion::move(const string &next) {
-	game->setRegion(next);
+void JSRegion::move(const string &next, Json::Value args) {
+	game->setRegion(next, args);
 	isComplete = true;
 };
 
 int JS_move(duk_context *ctx) {
-	running_region->move(string(duk_to_string(ctx, 0)));
+	if (duk_get_top(ctx) == 0) {
+		running_region->move(string(duk_to_string(ctx, 0)), Json::Value());
+	}
+	else {
+		running_region->move(string(duk_to_string(ctx, 0)), duk_get_json(ctx, 1));
+	}
+
 	return 0;
 }
 
@@ -504,9 +510,14 @@ void JSRegion::pre_run() {
 	}
 
 	// Define global functions
-	DEF_FUN("move", JS_move, 1);
+	DEF_FUN("move", JS_move, DUK_VARARGS);
 	DEF_FUN("direction", JS_direction, 3);
 	DEF_FUN("depend", JS_depend, DUK_VARARGS);
+
+	duk_push_global_object(ctx);             // Save for later
+	duk_push_json(ctx, game->getRegionArgs());
+	duk_put_prop_string(ctx, -2, "args");
+	duk_pop(ctx);
 
 	// Create GameObject prototype
 	duk_push_global_object(ctx);             // Save for later
@@ -548,7 +559,7 @@ void JSRegion::pre_run() {
 		return;\
 	}
 #define MOVE_OR_PUSH_DIR(ndx, name) if (directions[ndx].active) {\
-		running_region->move(directions[ndx].region);\
+		running_region->move(directions[ndx].region, Json::Value(Json::objectValue));\
 	}\
 	else {\
 		duk_push_string(ctx, name);\
@@ -585,8 +596,8 @@ void JSRegion::post_run() {
 		if (directions[D_UP].active) {
 			mvprintw(mid_y + screen_min_y - 3, 
 						mid_x + (screen_min_x + screen_max_x) / 2, "^");
-			mvprintw(mid_x + (screen_min_x + screen_max_x - directions[D_UP].name.length()) / 2,
-						mid_y + screen_min_y - 2,
+			mvprintw(mid_y + screen_min_y - 2,
+						mid_x + (screen_min_x + screen_max_x - directions[D_UP].name.length()) / 2,
 						"%s", directions[D_UP].name.c_str());
 		}
 		if (directions[D_DOWN].active) {

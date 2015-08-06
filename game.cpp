@@ -32,6 +32,17 @@ void Game::load() {
 	ifstream infile(SAVE_FILE);
 	if (infile.is_open()) {
 		infile >> region;
+
+		string arguments;
+		char line[256];
+		while (infile.getline(line, 256)) {
+			arguments += line;
+		}
+
+		const char *argStr = arguments.c_str();
+
+		Json::Reader *reader = new Json::Reader();
+		reader->parse(argStr, &argStr[arguments.length() - 1], region_args, false);
 	}
 }
 
@@ -39,7 +50,8 @@ void Game::save() {
 	ofstream outfile(SAVE_FILE);
 
 	if (outfile.is_open()) {
-		outfile << region << endl;;
+		outfile << region << endl;
+		outfile << region_args.toStyledString() << endl;
 	}
 }
 

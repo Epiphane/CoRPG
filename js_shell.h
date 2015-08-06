@@ -2,6 +2,7 @@
 #define JS_SHELL_H
 
 #include "duktape.h" 
+#include "json/json.h"
 
 class JSScript {
 public:
@@ -32,7 +33,7 @@ class JSRegion : public JSScript {
 public:
 	JSRegion() {};
 	JSRegion(const std::string& name, Game *g) : JSScript(name), game(g) {};
-	void move(const std::string &region);
+	void move(const std::string &region, Json::Value args);
 	void render();
 	Game *game;
 private:
